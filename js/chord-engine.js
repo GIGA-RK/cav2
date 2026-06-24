@@ -26,7 +26,8 @@ export function getAvailableQualities(){
 
 export function computeScore(item, sortMode){
   const ease = 100 - item.difficulty * 18;
-  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0);
+  const levelBonus = item.level ? (5 - item.level) * 2 : 0;
+  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0) + levelBonus;
   if(sortMode === 'difficulty') return ease + item.popularity * .15 + item.jazz * .10;
   if(sortMode === 'popularity') return item.popularity + ease * .12;
   if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12;
@@ -34,12 +35,13 @@ export function computeScore(item, sortMode){
   return base;
 }
 
-export function findChordForms({ rootPc, qualityKey, sortMode, maxDifficulty, family, usage, jazzOnly, allowRootless }){
+export function findChordForms({ rootPc, qualityKey, sortMode, maxDifficulty, family, usage, level, jazzOnly, allowRootless }){
   const rows = CHORD_LIBRARY
     .filter(item => item.quality === qualityKey)
     .filter(item => item.difficulty <= maxDifficulty)
     .filter(item => family === 'all' || item.family === family)
     .filter(item => usage === 'all' || item.usage.includes(usage))
+    .filter(item => level === 'all' || String(item.level ?? 2) === String(level))
     .filter(item => !jazzOnly || item.jazz >= 80 || item.tags.includes('jazz'))
     .filter(item => allowRootless || !item.rootless)
     .map(item => transposeTemplate(item, rootPc))

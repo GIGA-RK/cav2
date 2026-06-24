@@ -1,142 +1,108 @@
-# Chord Atlas v2 / Phase 1 Library Seed
+# Chord Atlas v2 / Phase 2
 
-GitHub Pages でそのまま動く、Family / Usage 対応コードフォームライブラリ確認UIです。
+ギターコードフォームを、単なる名前検索ではなく **実用性・難易度・使用頻度・ジャズ適性・Family・Usage・Level** で探せるようにするためのライブラリ確認版です。
 
-## 現在の目的
+## Current Status
 
-Chord Atlas v2 は、単なるコード表ではなく、ギターコードフォームを次の軸で検索・比較できるライブラリを目指します。
+Phase 2 expanded library.
 
-- 使用頻度 `popularity`
-- 難易度 `difficulty`
-- ジャズ適性 `jazz`
-- フォーム分類 `family`
-- 用途分類 `usage`
-- Rootless 判定
-- タグ検索の土台
+- 約 270+ templates
+- 20 qualities
+- Family filter
+- Usage filter
+- Level filter
+- Difficulty filter
+- Popularity score
+- Jazz score
+- Rootless support
+- SVG chord renderer
 
-## ファイル構成
+## Project Goal
+
+Chord Atlas v2 は、ギターコードフォームを「押さえ方の一覧」としてではなく、実際の演奏用途に合わせて探索できるコードフォームデータベースにすることを目指します。
+
+優先する価値は次の順です。
+
+1. 実際によく使う
+2. 押さえやすい
+3. 響きが良い
+4. ジャンルや用途に合う
+5. 理論的に完全である
+
+特にジャズ用途では、理論的な完全性よりも、実際のコンピングで使いやすい形を優先します。
+
+## File Structure
 
 ```text
 index.html
 README.md
-css/style.css
-js/main.js
-js/chord-data.js
-js/chord-engine.js
-js/renderer.js
+css/
+  style.css
+js/
+  main.js
+  chord-data.js
+  chord-engine.js
+  renderer.js
 ```
 
-GitHub Pages では、リポジトリの root にこの構成で配置してください。
+## Data Model
 
-## 現在の実装状況
-
-実装済み:
-
-- Family フィルタ
-- Usage フィルタ
-- Difficulty フィルタ
-- Jazz タグのみ表示
-- Rootless 許可/不許可
-- おすすめ / 難易度 / 使用頻度 / Jazz適性 / Family順ソート
-- SVG コードダイアグラム描画
-- README による開発引き継ぎメモ
-
-現在のライブラリ方針:
-
-- Phase 1 は `maj7`, `m7`, `7`, `m7b5`, `dim7` を厚めに登録
-- `maj9`, `m9`, `9`, `13`, `6/9`, `m11`, `7sus4`, `7alt` はスターターとして追加
-- 今後は Drop2 / Drop3 / Shell / Rootless を増やしていく
-
-## データ構造
-
-`js/chord-data.js` の `CHORD_LIBRARY` は次の形です。
+Each chord form should follow this shape:
 
 ```js
 {
-  quality: 'maj7',
-  name: 'Drop2 5th string root',
-  frets: [null, 3, 5, 4, 5, null],
-  family: 'drop2',
+  quality: 'maj9',
+  name: 'Rootless 3-7-color-5 maj9',
+  frets: [null, null, 2, 4, 3, 3],
+  family: 'rootless',
   usage: ['jazz-comping', 'bossa'],
   difficulty: 3,
-  popularity: 72,
-  jazz: 93,
-  rootless: false,
-  tags: ['drop2']
+  popularity: 64,
+  jazz: 97,
+  level: 4,
+  rootless: true,
+  tags: ['rootless', 'upper-structure', 'tension']
 }
 ```
 
-### frets について
-
-`frets` は 6弦から1弦の順です。
-
-```text
-[6弦, 5弦, 4弦, 3弦, 2弦, 1弦]
-```
-
-`null` はミュートです。
-
-例:
-
-```js
-[null, 3, 2, 0, 0, 0]
-```
-
-これは Cmaj7 の開放フォームです。
-
 ## Family Definitions
 
-| family | 意味 |
+| Family | Meaning |
 |---|---|
-| open | 開放弦を使う基本フォーム |
+| open | 開放弦を含む基本フォーム |
 | caged | CAGED由来の移動フォーム |
-| shell | ルート、3度、7度などを中心にした省略フォーム |
-| drop2 | Drop2 系のジャズ向けフォーム |
-| drop3 | Drop3 系の低音寄りフォーム |
-| rootless | ルートを省略した実用ジャズフォーム |
-| compact | 音域が密集したコンパクトフォーム |
+| shell | root / 3rd / 7th などの骨格フォーム |
+| drop2 | Drop2 系ボイシング |
+| drop3 | Drop3 系ボイシング |
+| rootless | ルート省略フォーム |
+| compact | 密集配置の実用フォーム |
+| spread | 広い配置のコードメロディ向けフォーム |
 
 ## Usage Definitions
 
-| usage | 意味 |
+| Usage | Meaning |
 |---|---|
 | beginner | 初心者向け |
 | pop | ポップス向け |
 | jazz-comping | ジャズ伴奏向け |
 | bossa | ボサノバ向け |
 | solo-guitar | ソロギター向け |
-| funk | ファンクカッティング向け |
+| funk | ファンク / カッティング向け |
 | blues | ブルース向け |
+| chord-melody | コードメロディ向け |
 
-## スコアリング方針
+## Level Definitions
 
-現在のおすすめ順は `js/chord-engine.js` の `computeScore()` で計算しています。
+| Level | Meaning |
+|---|---|
+| 1 | Open / Shell / Guide tone。まず覚える実用フォーム |
+| 2 | CAGED / Compact / 基本Drop2。標準的な伴奏フォーム |
+| 3 | Drop3 / Spread / Top-set。ソロギターやコードメロディ向け |
+| 4 | Rootless / Altered / Upper-structure。ジャズ実戦向け |
 
-基本方針:
+## Qualities in Phase 2
 
-```text
-popularity + ease + jazz + rootless bonus
-```
-
-ただし、最終的な価値判断では「理論上の完全性」よりも「実際に使われるか」を優先します。
-
-## ジャズ用フォームの設計ルール
-
-ジャズでは次を許可します。
-
-- 5度省略
-- ルート省略
-- 3度と7度の優先
-- 9th / 13th などテンションの優先
-- 3音・4音ボイシング
-
-そのため、`rootless: true` のフォームは理論上の完全コードではなくても、実用フォームとして登録します。
-
-## Roadmap
-
-### Phase 1: Core Jazz Forms
-
-対象:
+Core:
 
 - maj7
 - m7
@@ -144,15 +110,7 @@ popularity + ease + jazz + rootless bonus
 - m7b5
 - dim7
 
-目標:
-
-```text
-100〜200 forms
-```
-
-### Phase 2: Tension Chords
-
-対象:
+Phase 2 tension expansion:
 
 - maj9
 - m9
@@ -160,42 +118,81 @@ popularity + ease + jazz + rootless bonus
 - 13
 - 6/9
 - m11
-
-目標:
-
-```text
-300+ forms
-```
-
-### Phase 3: Altered Dominants
-
-対象:
-
-- 7(b9)
-- 7(#9)
-- 7(#11)
-- 7(b13)
+- 7sus4
 - 7alt
 
-目標:
+Additional color chords:
 
-```text
-600+ forms
-```
+- 6
+- m6
+- mMaj7
+- 7b9
+- 7#9
+- 7#11
+- 7b13
 
-## 次のチャットへの引き継ぎメモ
+## Scoring Philosophy
 
-このプロジェクトを別チャットで続ける場合は、次のように伝えるとスムーズです。
+Recommended score currently combines:
 
-```text
-Chord Atlas v2 の README を前提に、js/chord-data.js の CHORD_LIBRARY を拡張したい。
-現在は Phase 1 seed。Family / Usage / Difficulty / Popularity / Jazz / Rootless を持つデータ構造で、GitHub Pages 上で動く確認UIがある。
-次は maj7 / m7 / 7 / m7b5 / dim7 の Drop2, Drop3, Shell, Rootless を増やしたい。
-```
+- popularity
+- ease / difficulty
+- jazz score
+- rootless bonus
+- level bonus
 
-## 開発メモ
+The point is not mathematical purity. The goal is to put useful, playable, common forms near the top.
 
-- UIは確認用なので、まずはライブラリ品質を優先する。
-- `family` と `usage` は必須項目として扱う。
-- 今後、ユーザーが「よく使う」フォームを記録できるようにする可能性がある。
-- 将来的には、曲中での使用頻度やユーザー選択履歴をスコアに反映したい。
+## Important Jazz Rules
+
+Jazz chord forms may allow:
+
+- 5th omission
+- root omission
+- guide-tone emphasis
+- 9th / 13th / altered color tones
+- compact 3-note or 4-note voicings
+
+This is intentional. Many practical jazz guitar forms are not full six-string theoretical spellings.
+
+## Roadmap
+
+### Phase 1 completed
+
+- Family / Usage / Difficulty / Popularity / Jazz score
+- Rootless support
+- Core chord types
+- Around 100 templates
+
+### Phase 2 current
+
+- Level filter added
+- Tension qualities expanded
+- Around 270+ generated/seeded templates
+
+### Phase 3 target
+
+Focus on curation and verification.
+
+Planned:
+
+- Hand-curated altered dominant library
+- Better verified Drop2 / Drop3 sets
+- Song-context examples such as ii-V-I, rhythm changes, blues, bossa
+- Favorites / usage count tracking
+- Better ranking based on actual user selections
+
+## Development Notes for Future ChatGPT Sessions
+
+When continuing development in another chat, read this README first.
+
+The current priority is **library quality**, not UI decoration.
+
+Recommended next steps:
+
+1. Inspect `js/chord-data.js`.
+2. Replace generated forms with more hand-curated real-world voicings where needed.
+3. Keep `family`, `usage`, `difficulty`, `popularity`, `jazz`, and `level` on every entry.
+4. Do not remove rootless forms; they are central to the jazz direction.
+5. Keep GitHub Pages compatibility: no build step, plain HTML/CSS/JS modules only.
+

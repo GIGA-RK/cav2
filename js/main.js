@@ -1,63 +1,67 @@
-import { NOTES, QUALITIES, FORM_TEMPLATES } from './chord-data.js';
-import { getForms } from './chord-engine.js';
+import { NOTE_NAMES, FAMILIES, USAGES, CHORD_LIBRARY } from './chord-data.js';
+import { getAvailableQualities, findChordForms, chordName } from './chord-engine.js';
 import { renderDiagram } from './renderer.js';
 
 const $ = id => document.getElementById(id);
-const rootSelect = $('rootSelect');
-const qualitySelect = $('qualitySelect');
-const sortSelect = $('sortSelect');
-const difficultySelect = $('difficultySelect');
-const jazzOnly = $('jazzOnly');
-const rootlessOk = $('rootlessOk');
-const resultGrid = $('resultGrid');
+const sortOptions = [
+  ['recommended','おすすめ'], ['difficulty','難易度が低い'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順']
+];
 
-rootSelect.innerHTML = NOTES.map(n => `<option>${n}</option>`).join('');
-qualitySelect.innerHTML = QUALITIES.map(q => `<option value="${q.key}">${q.label}</option>`).join('');
-qualitySelect.value = 'maj7';
+function option(value, label=value){ return `<option value="${value}">${label}</option>`; }
 
-function renderStats(){
-  const byQuality = new Map();
-  FORM_TEMPLATES.forEach(f => byQuality.set(f.quality, (byQuality.get(f.quality) || 0) + 1));
-  $('stats').innerHTML = `
-    <div><strong>${FORM_TEMPLATES.length}</strong><span>templates</span></div>
-    <div><strong>${byQuality.size}</strong><span>qualities</span></div>
-    <div><strong>${FORM_TEMPLATES.filter(f => f.tags.includes('jazz')).length}</strong><span>jazz</span></div>
-  `;
+function init(){
+  $('rootSelect').innerHTML = NOTE_NAMES.map(n => option(n)).join('');
+  $('qualitySelect').innerHTML = getAvailableQualities().map(q => option(q.key, q.label)).join('');
+  $('sortSelect').innerHTML = sortOptions.map(([v,l]) => option(v,l)).join('');
+  $('difficultySelect').innerHTML = [1,2,3,4,5].map(n => option(n, `${n}以下`)).join('');
+  $('difficultySelect').value = '3';
+  $('familySelect').innerHTML = FAMILIES.map(f => option(f, f === 'all' ? 'すべて' : f)).join('');
+  $('usageSelect').innerHTML = USAGES.map(u => option(u, u === 'all' ? 'すべて' : u)).join('');
+
+  $('templateCount').textContent = CHORD_LIBRARY.length;
+  $('qualityCount').textContent = new Set(CHORD_LIBRARY.map(x => x.quality)).size;
+  $('jazzCount').textContent = CHORD_LIBRARY.filter(x => x.jazz >= 80).length;
+
+  document.querySelectorAll('select,input').forEach(el => el.addEventListener('change', render));
+  render();
 }
 
 function render(){
-  const forms = getForms({
-    root: rootSelect.value,
-    quality: qualitySelect.value,
-    sort: sortSelect.value,
-    maxDifficulty: difficultySelect.value,
-    jazzOnly: jazzOnly.checked,
-    rootlessOk: rootlessOk.checked
-  });
-  $('resultTitle').textContent = `${rootSelect.value}${QUALITIES.find(q => q.key === qualitySelect.value).suffix}`;
-  $('resultMeta').textContent = `${forms.length}件 / ${sortSelect.options[sortSelect.selectedIndex].textContent}順`;
-  resultGrid.innerHTML = forms.map(form => `
-    <article class="card">
-      <div class="card-top">
-        <div>
-          <h3>${form.displayName}</h3>
-          <p>${form.name}</p>
-        </div>
-        <strong class="score">${form.score}</strong>
-      </div>
-      <div class="diagram">${renderDiagram(form.frets)}</div>
-      <div class="badges">
-        <span>難易度 ${form.difficulty}</span>
-        <span>人気 ${form.popularity}</span>
-        <span>Jazz ${form.jazzUse}</span>
-        <span>${form.rootless ? 'Rootless' : 'Rootあり'}</span>
-      </div>
-      <p class="frets">${form.frets.map(f => f === null ? 'x' : f).join(' - ')}</p>
-      <p class="tags">${form.tags.map(t => `#${t}`).join(' ')}</p>
-    </article>
-  `).join('') || `<div class="empty">条件に合うフォームがありません。</div>`;
+  const rootPc = NOTE_NAMES.indexOf($('rootSelect').value);
+  const qualityKey = $('qualitySelect').value;
+  const params = {
+    rootPc,
+    qualityKey,
+    sortMode: $('sortSelect').value,
+    maxDifficulty: Number($('difficultySelect').value),
+    family: $('familySelect').value,
+    usage: $('usageSelect').value,
+    jazzOnly: $('jazzOnly').checked,
+    allowRootless: $('allowRootless').checked
+  };
+  const rows = findChordForms(params);
+  $('currentChord').textContent = chordName(rootPc, qualityKey);
+  $('resultMeta').textContent = `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}順`;
+  $('cards').innerHTML = rows.length ? rows.map(cardHtml).join('') : `<div class="empty">条件に合うフォームがありません。Difficulty や Family / Usage を緩めてください。</div>`;
 }
 
-[rootSelect, qualitySelect, sortSelect, difficultySelect, jazzOnly, rootlessOk].forEach(el => el.addEventListener('change', render));
-renderStats();
-render();
+function cardHtml(item){
+  const tags = [...new Set([item.family, ...item.usage, ...(item.tags || [])])];
+  return `<article class="card">
+    <div class="score">${item.score}</div>
+    <h3>${item.displayName}</h3>
+    <p class="subtitle">${item.name}</p>
+    <div class="diagram">${renderDiagram(item.frets)}</div>
+    <div class="pills">
+      <span class="pill">難易度 ${item.difficulty}</span>
+      <span class="pill">人気 ${item.popularity}</span>
+      <span class="pill">Jazz ${item.jazz}</span>
+      <span class="pill">${item.rootless ? 'Rootless' : 'Rootあり'}</span>
+      <span class="pill">Family: ${item.family}</span>
+    </div>
+    <div class="frets">${item.frets.map(f => f === null ? 'x' : f).join(' - ')}</div>
+    <div class="tags">${tags.map(t => `#${t}`).join(' ')}</div>
+  </article>`;
+}
+
+init();

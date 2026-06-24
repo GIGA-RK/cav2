@@ -1,77 +1,55 @@
-import { NOTES, STRING_PC, QUALITY_BY_KEY, FORM_TEMPLATES } from './chord-data.js';
+import { NOTE_NAMES, QUALITIES, CHORD_LIBRARY } from './chord-data.js';
 
-export function mod12(n){ return ((n % 12) + 12) % 12; }
-export function noteToPc(note){ return NOTES.indexOf(note); }
-export function pcToNote(pc){ return NOTES[mod12(pc)]; }
-export function pitchOnString(stringIndex, fret){ return mod12(STRING_PC[stringIndex] + fret); }
-export function minPositiveFret(frets){ const xs = frets.filter(f => f !== null && f > 0); return xs.length ? Math.min(...xs) : 0; }
-export function maxPositiveFret(frets){ const xs = frets.filter(f => f !== null && f > 0); return xs.length ? Math.max(...xs) : 0; }
-export function span(frets){ const min = minPositiveFret(frets); const max = maxPositiveFret(frets); return max ? max - min : 0; }
-export function playedCount(frets){ return frets.filter(f => f !== null).length; }
-export function openCount(frets){ return frets.filter(f => f === 0).length; }
-export function mutedCount(frets){ return frets.filter(f => f === null).length; }
-export function lowestString(frets){ return frets.findIndex(f => f !== null); }
-export function chordName(rootPc, qualityKey){ return `${pcToNote(rootPc)}${QUALITY_BY_KEY[qualityKey].suffix}`; }
+export const qualityByKey = Object.fromEntries(QUALITIES.map(q => [q.key, q]));
+export const mod12 = n => ((n % 12) + 12) % 12;
+export const noteNameToPc = name => NOTE_NAMES.indexOf(name);
+export const pcToName = pc => NOTE_NAMES[mod12(pc)];
 
-export function transposeFrets(template, targetRootPc){
-  const baseRootPc = noteToPc(template.templateRoot);
-  const shift = mod12(targetRootPc - baseRootPc);
-  const frets = template.frets.map(f => f === null ? null : f + shift);
-  if (frets.some(f => f !== null && f > 15)) return null;
-  return { ...template, transposedFrom: template.templateRoot, rootPc: targetRootPc, shift, frets };
+export function transposeFrets(frets, semitones){
+  return frets.map(f => f === null ? null : f + semitones);
 }
 
-export function toneSet(rootPc, qualityKey){
-  return new Set(QUALITY_BY_KEY[qualityKey].intervals.map(iv => mod12(rootPc + iv)));
+export function transposeTemplate(template, rootPc){
+  const semitones = mod12(rootPc); // library is authored in C relative forms
+  const frets = transposeFrets(template.frets, semitones);
+  if(frets.some(f => f !== null && f > 17)) return null;
+  return { ...template, frets, root: pcToName(rootPc) };
 }
 
-export function formPitchClasses(form){
-  return [...new Set(form.frets.flatMap((f, i) => f === null ? [] : [pitchOnString(i, f)]))];
+export function chordName(rootPc, qualityKey){
+  return `${pcToName(rootPc)}${qualityByKey[qualityKey]?.suffix ?? qualityKey}`;
 }
 
-export function scoreForm(form, sortMode='recommended'){
-  const easy = (6 - form.difficulty) * 20;
-  const lowFret = Math.max(0, 100 - minPositiveFret(form.frets) * 8);
-  const compact = Math.max(0, 100 - span(form.frets) * 14);
-  const open = openCount(form.frets) * 10;
-  const rootlessPenalty = form.rootless ? -8 : 0;
-  const weights = {
-    recommended: { popularity:.34, easy:.28, jazzUse:.14, lowFret:.12, compact:.08, open:.04 },
-    easy:        { popularity:.18, easy:.46, jazzUse:.08, lowFret:.18, compact:.08, open:.02 },
-    popular:     { popularity:.62, easy:.14, jazzUse:.08, lowFret:.10, compact:.04, open:.02 },
-    jazz:        { popularity:.18, easy:.10, jazzUse:.48, lowFret:.08, compact:.14, open:.02 },
-    lowFret:     { popularity:.16, easy:.18, jazzUse:.08, lowFret:.46, compact:.10, open:.02 }
-  }[sortMode] || {};
-  return Math.round(
-    form.popularity * weights.popularity +
-    easy * weights.easy +
-    form.jazzUse * weights.jazzUse +
-    lowFret * weights.lowFret +
-    compact * weights.compact +
-    open * weights.open + rootlessPenalty
-  );
+export function getAvailableQualities(){
+  return QUALITIES.filter(q => CHORD_LIBRARY.some(item => item.quality === q.key));
 }
 
-export function getForms({root='C', quality='maj7', sort='recommended', maxDifficulty='all', jazzOnly=false, rootlessOk=true}){
-  const rootPc = noteToPc(root);
-  let forms = FORM_TEMPLATES
-    .filter(t => t.quality === quality)
-    .map(t => transposeFrets(t, rootPc))
-    .filter(Boolean);
+export function computeScore(item, sortMode){
+  const ease = 100 - item.difficulty * 18;
+  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0);
+  if(sortMode === 'difficulty') return ease + item.popularity * .15 + item.jazz * .10;
+  if(sortMode === 'popularity') return item.popularity + ease * .12;
+  if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12;
+  if(sortMode === 'family') return base;
+  return base;
+}
 
-  if (maxDifficulty !== 'all') forms = forms.filter(f => f.difficulty <= Number(maxDifficulty));
-  if (jazzOnly) forms = forms.filter(f => f.tags.includes('jazz'));
-  if (!rootlessOk) forms = forms.filter(f => !f.rootless);
+export function findChordForms({ rootPc, qualityKey, sortMode, maxDifficulty, family, usage, jazzOnly, allowRootless }){
+  const rows = CHORD_LIBRARY
+    .filter(item => item.quality === qualityKey)
+    .filter(item => item.difficulty <= maxDifficulty)
+    .filter(item => family === 'all' || item.family === family)
+    .filter(item => usage === 'all' || item.usage.includes(usage))
+    .filter(item => !jazzOnly || item.jazz >= 80 || item.tags.includes('jazz'))
+    .filter(item => allowRootless || !item.rootless)
+    .map(item => transposeTemplate(item, rootPc))
+    .filter(Boolean)
+    .map(item => ({ ...item, displayName: chordName(rootPc, item.quality), score: Math.round(computeScore(item, sortMode)) }));
 
-  forms = forms.map(f => ({
-    ...f,
-    displayName: chordName(rootPc, quality),
-    minFret: minPositiveFret(f.frets),
-    span: span(f.frets),
-    played: playedCount(f.frets),
-    score: scoreForm(f, sort),
-    tones: formPitchClasses(f).map(pcToNote)
-  }));
-
-  return forms.sort((a,b) => b.score - a.score || a.difficulty - b.difficulty || a.minFret - b.minFret);
+  rows.sort((a,b) => {
+    if(sortMode === 'family' && a.family !== b.family) return a.family.localeCompare(b.family);
+    if(b.score !== a.score) return b.score - a.score;
+    return a.difficulty - b.difficulty;
+  });
+  return rows;
 }

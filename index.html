@@ -3,58 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chord Atlas Library Lab</title>
+  <title>Chord Atlas v2 / Step 1</title>
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <main class="app">
     <header class="hero">
       <div>
-        <p class="eyebrow">Chord Atlas v2 / Library Lab</p>
-        <h1>コードライブラリ確認UI</h1>
-        <p class="lead">使用頻度・難易度・ジャズ適性でソートできる、新しいコードフォームライブラリの試作版です。</p>
+        <p class="eyebrow">CHORD ATLAS V2 / STEP 1</p>
+        <h1>Family / Usage 対応ライブラリ確認UI</h1>
+        <p class="lead">コードフォームを family と usage で分類し、使用頻度・難易度・ジャズ適性で並べ替える土台です。</p>
       </div>
-      <div class="stats" id="stats"></div>
+      <div class="stats">
+        <div><strong id="templateCount">0</strong><span>templates</span></div>
+        <div><strong id="qualityCount">0</strong><span>qualities</span></div>
+        <div><strong id="jazzCount">0</strong><span>jazz</span></div>
+      </div>
     </header>
 
-    <section class="controls">
-      <label>Root
-        <select id="rootSelect"></select>
-      </label>
-      <label>Quality
-        <select id="qualitySelect"></select>
-      </label>
-      <label>Sort
-        <select id="sortSelect">
-          <option value="recommended">おすすめ</option>
-          <option value="easy">難易度が低い</option>
-          <option value="popular">使用頻度</option>
-          <option value="jazz">ジャズ向け</option>
-          <option value="lowFret">低フレット</option>
-        </select>
-      </label>
-      <label>Difficulty
-        <select id="difficultySelect">
-          <option value="all">すべて</option>
-          <option value="1">1以下</option>
-          <option value="2">2以下</option>
-          <option value="3">3以下</option>
-          <option value="4">4以下</option>
-          <option value="5">5以下</option>
-        </select>
-      </label>
-      <label class="check"><input id="jazzOnly" type="checkbox" /> Jazzタグのみ</label>
-      <label class="check"><input id="rootlessOk" type="checkbox" checked /> Rootless許可</label>
+    <section class="controls" aria-label="filters">
+      <label>Root<select id="rootSelect"></select></label>
+      <label>Quality<select id="qualitySelect"></select></label>
+      <label>Sort<select id="sortSelect"></select></label>
+      <label>Difficulty<select id="difficultySelect"></select></label>
+      <label>Family<select id="familySelect"></select></label>
+      <label>Usage<select id="usageSelect"></select></label>
+      <label class="check"><input type="checkbox" id="jazzOnly" /> Jazzタグのみ</label>
+      <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
     </section>
 
     <section class="result-head">
-      <h2 id="resultTitle">候補</h2>
-      <p id="resultMeta"></p>
+      <h2 id="currentChord">Cmaj7</h2>
+      <p id="resultMeta">0件</p>
     </section>
 
-    <section class="grid" id="resultGrid"></section>
+    <section id="cards" class="grid" aria-live="polite"></section>
   </main>
-
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>

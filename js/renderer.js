@@ -19,11 +19,12 @@ export function renderDiagram(frets){
   if(!showNut) svg += `<text x="17" y="${top+stepY*.8}" class="base">${baseFret}</text>`;
   frets.forEach((f,s)=>{
     const x = left + s*stepX;
-    if(f === null){ svg += `<text x="${x}" y="24" class="mute">×</text>`; return; }
-    if(f === 0 && showNut){ svg += `<circle cx="${x}" cy="24" r="5" class="open"/>`; return; }
+    if(f === null){ svg += `<text x="${x}" y="22" text-anchor="middle" class="mute">×</text>`; return; }
+    if(showNut && f === 0){ svg += `<circle cx="${x}" cy="22" r="6" class="open"/>`; return; }
     const row = showNut ? f : f - baseFret + 1;
     if(row < 1 || row > 5) return;
-    svg += `<circle cx="${x}" cy="${top + stepY*(row-.5)}" r="7" class="dot"/>`;
+    const y = top + stepY*(row-.5);
+    svg += `<circle cx="${x}" cy="${y}" r="8" class="dot"/>`;
   });
-  return svg + '</svg>';
+  return svg + `</svg>`;
 }

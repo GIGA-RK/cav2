@@ -311,3 +311,10 @@ The result grid should feel like a quick visual chord browser, not a data table.
 - Score display is no longer a bright badge.
 - Fret number is shifted left to avoid overlap with finger markers.
 - Root note marker is slightly larger than other tones.
+
+
+## Phase 5.4 diff
+
+- Diagram board widened horizontally to prevent note dots from overlapping.
+- Fret-base number moved further left using right-aligned text.
+- SVG display size slightly increased while keeping compact card layout.

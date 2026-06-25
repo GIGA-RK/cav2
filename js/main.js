@@ -7,10 +7,9 @@ const sortOptions = [
   ['recommended','おすすめ'], ['difficulty','簡単順'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
 ];
 
-const FAVORITE_QUALITIES = ['maj7','m7','7','maj9','m9','9','13','6/9','add9','sus4','7alt','m7b5','dim7'];
+const FREQUENT_QUALITIES = ['maj','min','7','maj7','m7','sus4','add9','6','6/9','9','m9','13'];
 const QUALITY_CATEGORIES = [
-  { key:'favorite', label:'★ Favorite', keys:FAVORITE_QUALITIES },
-  { key:'major', label:'Major', test:q => q.key === 'maj' || q.key === '6' || q.key === '6/9' || q.key.startsWith('maj') || q.key === 'add9' },
+  { key:'major', label:'Major', test:q => q.key === 'maj' || q.key === '6' || q.key === '6/9' || q.key.startsWith('maj') || q.key === 'add9' || q.key === 'add11' || q.key === 'add13' },
   { key:'minor', label:'Minor', test:q => q.key === 'min' || q.key.startsWith('m') },
   { key:'dominant', label:'Dominant', test:q => /^7|^9|^11|^13/.test(q.key) },
   { key:'sus', label:'Sus', test:q => q.key.includes('sus') },
@@ -20,7 +19,7 @@ const QUALITY_CATEGORIES = [
 ];
 
 let availableQualities = [];
-let selectedQualityCategory = 'favorite';
+let selectedQualityCategory = 'major';
 
 function option(value, label=value){ return `<option value="${value}">${label}</option>`; }
 function qualityLabel(key){ return availableQualities.find(q => q.key === key)?.label ?? key; }
@@ -33,10 +32,9 @@ function qualitiesForCategory(categoryKey){
   }
   if(category.key === 'other'){
     const categorized = new Set();
-    QUALITY_CATEGORIES.filter(c => c.key !== 'other' && !c.keys).forEach(c => {
+    QUALITY_CATEGORIES.filter(c => c.key !== 'other').forEach(c => {
       availableQualities.filter(c.test).forEach(q => categorized.add(q.key));
     });
-    FAVORITE_QUALITIES.forEach(k => categorized.add(k));
     const other = availableQualities.filter(q => !categorized.has(q.key));
     return other.length ? other : availableQualities;
   }
@@ -70,7 +68,6 @@ function init(){
   $('qualityButton').addEventListener('click', openQualityPalette);
   $('qualityClose').addEventListener('click', closeQualityPalette);
   $('qualityOverlay').addEventListener('click', closeQualityPalette);
-  $('qualitySearch').addEventListener('input', renderQualityPalette);
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeQualityPalette(); });
 
   $('densityBtn').addEventListener('click', () => {
@@ -92,9 +89,7 @@ function openQualityPalette(){
   $('qualityPalette').classList.add('open');
   $('qualityPalette').setAttribute('aria-hidden','false');
   $('qualityButton').setAttribute('aria-expanded','true');
-  $('qualitySearch').value = '';
   renderQualityPalette();
-  setTimeout(() => $('qualitySearch').focus({preventScroll:true}), 20);
 }
 
 function closeQualityPalette(){
@@ -114,29 +109,30 @@ function setQuality(key){
 
 function renderQualityPalette(){
   const current = $('qualitySelect').value;
-  const query = ($('qualitySearch')?.value || '').trim().toLowerCase();
-  const favoriteSet = new Set(FAVORITE_QUALITIES);
-  const favoriteItems = availableQualities.filter(q => favoriteSet.has(q.key));
-  $('qualityFavorites').innerHTML = favoriteItems.map(q => qualityChip(q, current, true)).join('');
+  const frequentSet = new Set(FREQUENT_QUALITIES);
+  const frequentItems = FREQUENT_QUALITIES
+    .map(key => availableQualities.find(q => q.key === key))
+    .filter(Boolean);
+
+  $('qualityFrequent').innerHTML = frequentItems.map(q => qualityChip(q, current, true)).join('');
   $('qualityTabs').innerHTML = QUALITY_CATEGORIES.map(cat => `<button class="quality-tab ${selectedQualityCategory === cat.key ? 'active' : ''}" type="button" data-category="${cat.key}">${cat.label}</button>`).join('');
 
-  let list = query
-    ? availableQualities.filter(q => `${q.key} ${q.label} ${q.suffix ?? ''}`.toLowerCase().includes(query))
-    : qualitiesForCategory(selectedQualityCategory);
+  let list = qualitiesForCategory(selectedQualityCategory)
+    .filter(q => !frequentSet.has(q.key) || selectedQualityCategory !== 'other');
+
   $('qualityList').innerHTML = list.length ? list.map(q => qualityChip(q, current, false)).join('') : '<p class="quality-empty">該当するコードタイプがありません。</p>';
 
-  $('qualityFavorites').querySelectorAll('[data-quality]').forEach(btn => btn.addEventListener('click', () => setQuality(btn.dataset.quality)));
+  $('qualityFrequent').querySelectorAll('[data-quality]').forEach(btn => btn.addEventListener('click', () => setQuality(btn.dataset.quality)));
   $('qualityList').querySelectorAll('[data-quality]').forEach(btn => btn.addEventListener('click', () => setQuality(btn.dataset.quality)));
   $('qualityTabs').querySelectorAll('[data-category]').forEach(btn => btn.addEventListener('click', () => {
     selectedQualityCategory = btn.dataset.category;
-    $('qualitySearch').value = '';
     renderQualityPalette();
   }));
 }
 
 function qualityChip(q, current, compact){
   const count = CHORD_LIBRARY.filter(item => item.quality === q.key).length;
-  return `<button class="quality-chip ${compact ? 'favorite' : ''} ${q.key === current ? 'selected' : ''}" type="button" data-quality="${q.key}">
+  return `<button class="quality-chip ${compact ? 'frequent' : ''} ${q.key === current ? 'selected' : ''}" type="button" data-quality="${q.key}">
     <span>${q.label}</span><small>${count}</small>
   </button>`;
 }

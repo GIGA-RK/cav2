@@ -302,3 +302,12 @@ The result grid should feel like a quick visual chord browser, not a data table.
   - Tensions: teal
 - Fret number text is enlarged for better visibility.
 - Card width is slightly reduced while keeping enough room for readable diagrams.
+
+
+## Phase 5.3 UI refinement
+
+- Chord cards remain minimal: chord name, subtle score text, diagram only.
+- Note markers use soft pastel colors with large black note labels.
+- Score display is no longer a bright badge.
+- Fret number is shifted left to avoid overlap with finger markers.
+- Root note marker is slightly larger than other tones.

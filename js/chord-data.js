@@ -3,6 +3,7 @@ export const STRING_PC = [4,9,2,7,11,4];
 
 export const QUALITIES = [
   { key:'maj', label:'Major', suffix:'', intervals:[0,4,7] },
+  { key:'5', label:'5', suffix:'5', intervals:[0,7] },
   { key:'6', label:'6', suffix:'6', intervals:[0,4,7,9] },
   { key:'6/9', label:'6/9', suffix:'6/9', intervals:[0,4,7,9,14] },
   { key:'maj7', label:'maj7', suffix:'maj7', intervals:[0,4,7,11] },
@@ -86,7 +87,7 @@ export const QUALITIES = [
   { key:'maj9sus4', label:'maj9sus4', suffix:'maj9sus4', intervals:[0,5,7,11,14] }
 ];
 
-export const FAMILIES = ['all','open','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
+export const FAMILIES = ['all','open','power','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
 export const USAGES = ['all','beginner','pop','rock','jazz-comping','bossa','solo-guitar','funk','blues','chord-melody','neo-soul'];
 
 
@@ -96,7 +97,7 @@ export const QUALITY_ALIASES = {
   'ø':'m7b5', 'half-dim':'m7b5', 'half diminished':'m7b5',
   'o':'dim', '°':'dim', 'o7':'dim7', '°7':'dim7',
   '+':'aug', '+7':'aug7',
-  'alt':'7alt', 'dom7':'7',
+  'alt':'7alt', 'dom7':'7', 'power':'5', 'pow':'5',
   'sus':'sus4', 'sus7':'7sus4',
   '69':'6/9', 'm69':'m6/9'
 };
@@ -105,6 +106,7 @@ export const LEVELS = ['all','1','2','3','4','5'];
 export const VOICES = ['all','basic','guide-tone','close','spread','rootless-color','upper-structure','quartal','altered','sus'];
 
 const QUALITY_STYLE = {
+  '5':{ pop:96, jazz:45, usage:['beginner','rock','pop'] },
   maj:{ pop:90, jazz:70, usage:['beginner','pop','rock'] },
   '6':{ pop:62, jazz:86, usage:['pop','bossa','jazz-comping'] },
   '6/9':{ pop:68, jazz:94, usage:['bossa','jazz-comping','pop'] },
@@ -182,6 +184,48 @@ const QUALITY_STYLE = {
   maj7sus4:{ pop:42, jazz:84, usage:['pop','neo-soul','jazz-comping'] },
   maj9sus4:{ pop:38, jazz:86, usage:['neo-soul','jazz-comping'] },
 };
+
+
+const FIXED_BASIC_FORMS = [
+  // Beginner open major chords
+  {fixedRootPc:0, quality:'maj', name:'Open C', frets:[null,3,2,0,1,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:55, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:2, quality:'maj', name:'Open D', frets:[null,null,0,2,3,2], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:50, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:4, quality:'maj', name:'Open E', frets:[0,2,2,1,0,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:48, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:7, quality:'maj', name:'Open G', frets:[3,2,0,0,0,3], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:48, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:9, quality:'maj', name:'Open A', frets:[null,0,2,2,2,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:50, level:1, tags:['open','beginner','cowboy']},
+
+  // Beginner open minor chords
+  {fixedRootPc:9, quality:'min', name:'Open Am', frets:[null,0,2,2,1,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:52, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:2, quality:'min', name:'Open Dm', frets:[null,null,0,2,3,1], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:96, jazz:54, level:1, tags:['open','beginner','cowboy']},
+  {fixedRootPc:4, quality:'min', name:'Open Em', frets:[0,2,2,0,0,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:52, level:1, tags:['open','beginner','cowboy']},
+
+  // Beginner/open dominant chords
+  {fixedRootPc:9, quality:'7', name:'Open A7', frets:[null,0,2,0,2,0], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:1, popularity:97, jazz:64, level:1, tags:['open','beginner','dominant']},
+  {fixedRootPc:11, quality:'7', name:'Open B7', frets:[null,2,1,2,0,2], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:2, popularity:90, jazz:66, level:1, tags:['open','dominant']},
+  {fixedRootPc:0, quality:'7', name:'Open C7', frets:[null,3,2,3,1,0], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:1, popularity:92, jazz:68, level:1, tags:['open','dominant']},
+  {fixedRootPc:2, quality:'7', name:'Open D7', frets:[null,null,0,2,1,2], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:1, popularity:97, jazz:66, level:1, tags:['open','dominant']},
+  {fixedRootPc:4, quality:'7', name:'Open E7', frets:[0,2,0,1,0,0], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:1, popularity:98, jazz:66, level:1, tags:['open','dominant']},
+  {fixedRootPc:7, quality:'7', name:'Open G7', frets:[3,2,0,0,0,1], family:'open', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:1, popularity:95, jazz:62, level:1, tags:['open','dominant']},
+
+  // Essential open sus/add color chords for pop/rock
+  {fixedRootPc:9, quality:'sus2', name:'Open Asus2', frets:[null,0,2,2,0,0], family:'open', voice:'sus', usage:['beginner','pop','rock'], difficulty:1, popularity:88, jazz:52, level:1, tags:['open','sus','pop']},
+  {fixedRootPc:9, quality:'sus4', name:'Open Asus4', frets:[null,0,2,2,3,0], family:'open', voice:'sus', usage:['beginner','pop','rock'], difficulty:1, popularity:88, jazz:52, level:1, tags:['open','sus','pop']},
+  {fixedRootPc:2, quality:'sus2', name:'Open Dsus2', frets:[null,null,0,2,3,0], family:'open', voice:'sus', usage:['beginner','pop','rock'], difficulty:1, popularity:90, jazz:52, level:1, tags:['open','sus','pop']},
+  {fixedRootPc:2, quality:'sus4', name:'Open Dsus4', frets:[null,null,0,2,3,3], family:'open', voice:'sus', usage:['beginner','pop','rock'], difficulty:1, popularity:90, jazz:52, level:1, tags:['open','sus','pop']},
+  {fixedRootPc:4, quality:'sus4', name:'Open Esus4', frets:[0,2,2,2,0,0], family:'open', voice:'sus', usage:['beginner','pop','rock'], difficulty:1, popularity:86, jazz:52, level:1, tags:['open','sus','pop']},
+  {fixedRootPc:7, quality:'add9', name:'Open Gadd9', frets:[3,0,0,0,0,3], family:'open', voice:'basic', usage:['pop','rock'], difficulty:1, popularity:82, jazz:54, level:1, tags:['open','add9','pop']},
+
+  // Power chord templates, authored as C-root movable shapes.
+  {quality:'5', name:'C5 power 5th-string root', frets:[null,3,5,5,null,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:98, jazz:30, level:1, tags:['power','rock','movable']},
+  {quality:'5', name:'C5 power 5th-string two-note', frets:[null,3,5,null,null,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:96, jazz:28, level:1, tags:['power','rock','movable','two-note']},
+  {quality:'5', name:'C5 power 6th-string root', frets:[8,10,10,null,null,null], family:'power', voice:'basic', usage:['rock','pop'], difficulty:2, popularity:90, jazz:26, level:1, tags:['power','rock','movable']},
+  {quality:'5', name:'C5 power 4th-string root', frets:[null,null,10,12,13,null], family:'power', voice:'basic', usage:['rock','pop'], difficulty:2, popularity:76, jazz:26, level:1, tags:['power','rock','movable','higher']},
+
+  // Open power chords that should appear first for rock/easy search.
+  {fixedRootPc:4, quality:'5', name:'Open E5', frets:[0,2,2,null,null,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:99, jazz:20, level:1, tags:['open','power','rock']},
+  {fixedRootPc:9, quality:'5', name:'Open A5', frets:[null,0,2,2,null,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:99, jazz:20, level:1, tags:['open','power','rock']},
+  {fixedRootPc:2, quality:'5', name:'Open D5', frets:[null,null,0,2,3,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:94, jazz:20, level:1, tags:['open','power','rock']}
+];
 
 const MANUAL_OPEN_FORMS = [
   {quality:'maj', name:'Open C', frets:[null,3,2,0,1,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:96, jazz:60, level:1, tags:['open','beginner']},
@@ -303,7 +347,7 @@ function makeEntry(quality, blueprint){
   };
 }
 function buildLibrary(){
-  const out = [...MANUAL_OPEN_FORMS];
+  const out = [...FIXED_BASIC_FORMS, ...MANUAL_OPEN_FORMS];
   for(const quality of QUALITIES){
     for(const blueprint of BLUEPRINTS){
       const item = makeEntry(quality, blueprint);
@@ -322,9 +366,9 @@ function buildLibrary(){
 export const CHORD_LIBRARY = buildLibrary();
 
 export const LIBRARY_META = {
-  version: 'v2-phase4-broad-coverage',
-  phase: 'Phase 4',
+  version: 'v2-phase5.8-basic-open-power',
+  phase: 'Phase 5.8',
   templateCount: CHORD_LIBRARY.length,
-  focus: 'Broad pop/rock/jazz coverage: more add, sus, altered dominant, minor color and advanced tension qualities',
-  nextTarget: 'Manual curation, aliases/parser, and progression-aware recommendations'
+  focus: 'Basic open chords and power chords restored and prioritized for pop/rock beginner workflows',
+  nextTarget: 'Chord sheet editor, reverse lookup, and continued curation of practical forms'
 };

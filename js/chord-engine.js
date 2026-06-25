@@ -19,7 +19,7 @@ function lowestPc(frets){
   return s < 0 ? null : pcOnString(s, frets[s]);
 }
 function uniqueFretsKey(item){
-  return `${item.quality}|${item.family}|${item.root ?? ''}|${item.bass ?? ''}|${item.frets.map(f => f === null ? 'x' : f).join('-')}`;
+  return `${item.quality}|${item.family}|${item.fixedRootPc ?? ''}|${item.root ?? ''}|${item.bass ?? ''}|${item.frets.map(f => f === null ? 'x' : f).join('-')}`;
 }
 function nearestBassFret(stringIdx, bassPc, anchor=4){
   let best = null;
@@ -36,7 +36,12 @@ export function transposeFrets(frets, semitones){
 }
 
 export function transposeTemplate(template, rootPc){
-  const semitones = mod12(rootPc); // library is authored in C relative forms
+  // Fixed open forms are authored for a specific root and should not be transposed.
+  if(template.fixedRootPc !== undefined){
+    if(mod12(template.fixedRootPc) !== mod12(rootPc)) return null;
+    return { ...template, frets:[...template.frets], root: pcToName(rootPc) };
+  }
+  const semitones = mod12(rootPc); // movable templates are authored in C relative forms
   const frets = transposeFrets(template.frets, semitones);
   if(frets.some(f => f !== null && f > 17)) return null;
   return { ...template, frets, root: pcToName(rootPc) };
@@ -56,7 +61,11 @@ export function computeScore(item, sortMode){
   const levelBonus = item.level ? (5 - item.level) * 2 : 0;
   const slashBonus = item.slash ? 3 : 0;
   const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0) + levelBonus + slashBonus;
-  if(sortMode === 'difficulty') return ease + item.popularity * .15 + item.jazz * .10;
+  if(sortMode === 'difficulty') {
+    const familyBonus = item.family === 'open' ? 18 : item.family === 'power' ? 16 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
+    const beginnerBonus = item.usage?.includes('beginner') ? 10 : 0;
+    return ease + item.popularity * .18 + familyBonus + beginnerBonus - (item.rootless ? 8 : 0);
+  }
   if(sortMode === 'popularity') return item.popularity + ease * .12;
   if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12 + slashBonus;
   if(sortMode === 'family') return base;

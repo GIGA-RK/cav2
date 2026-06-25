@@ -8,7 +8,7 @@ const sortOptions = [
   ['recommended','おすすめ'], ['difficulty','簡単順'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
 ];
 
-const FREQUENT_QUALITIES = ['maj','min','7','maj7','m7','sus4','add9','6','6/9','9','m9','13'];
+const FREQUENT_QUALITIES = ['maj','min','5','7','maj7','m7','sus4','add9','6','6/9','9','m9','13'];
 const QUALITY_CATEGORIES = [
   { key:'major', label:'Major', test:q => q.key === 'maj' || q.key === '6' || q.key === '6/9' || q.key.startsWith('maj') || q.key === 'add9' || q.key === 'add11' || q.key === 'add13' },
   { key:'minor', label:'Minor', test:q => q.key === 'min' || q.key.startsWith('m') },
@@ -16,6 +16,7 @@ const QUALITY_CATEGORIES = [
   { key:'sus', label:'Sus', test:q => q.key.includes('sus') },
   { key:'dim', label:'Dim', test:q => q.key.includes('dim') || q.key.includes('m7b5') || q.key.includes('m9b5') || q.key.includes('m11b5') },
   { key:'aug', label:'Aug', test:q => q.key.includes('aug') || q.key.includes('#5') },
+  { key:'power', label:'Power', test:q => q.key === '5' },
   { key:'other', label:'Other', test:q => true }
 ];
 

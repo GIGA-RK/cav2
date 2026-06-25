@@ -12,6 +12,7 @@ function option(value, label=value){ return `<option value="${value}">${label}</
 function init(){
   $('rootSelect').innerHTML = NOTE_NAMES.map(n => option(n)).join('');
   $('qualitySelect').innerHTML = getAvailableQualities().map(q => option(q.key, q.label)).join('');
+  $('bassSelect').innerHTML = [option('none', 'なし'), ...NOTE_NAMES.map(n => option(n))].join('');
   $('sortSelect').innerHTML = sortOptions.map(([v,l]) => option(v,l)).join('');
   $('difficultySelect').innerHTML = [1,2,3,4,5].map(n => option(n, `${n}以下`)).join('');
   $('difficultySelect').value = '3';
@@ -33,6 +34,7 @@ function render(){
   const params = {
     rootPc,
     qualityKey,
+    bassPc: $('bassSelect').value === 'none' ? null : NOTE_NAMES.indexOf($('bassSelect').value),
     sortMode: $('sortSelect').value,
     maxDifficulty: Number($('difficultySelect').value),
     family: $('familySelect').value,
@@ -42,7 +44,8 @@ function render(){
     allowRootless: $('allowRootless').checked
   };
   const rows = findChordForms(params);
-  $('currentChord').textContent = chordName(rootPc, qualityKey);
+  const bassPc = $('bassSelect').value === 'none' ? null : NOTE_NAMES.indexOf($('bassSelect').value);
+  $('currentChord').textContent = chordName(rootPc, qualityKey, bassPc);
   $('resultMeta').textContent = `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}順`;
   $('cards').innerHTML = rows.length ? rows.map(cardHtml).join('') : `<div class="empty">条件に合うフォームがありません。Difficulty や Family / Usage を緩めてください。</div>`;
 }
@@ -59,6 +62,7 @@ function cardHtml(item){
       <span class="pill">人気 ${item.popularity}</span>
       <span class="pill">Jazz ${item.jazz}</span>
       <span class="pill">${item.rootless ? 'Rootless' : 'Rootあり'}</span>
+      ${item.slash ? `<span class="pill">Bass: ${item.bass}</span>` : ''}
       <span class="pill">Family: ${item.family}</span>
       <span class="pill">Level ${item.level ?? 2}</span>
     </div>

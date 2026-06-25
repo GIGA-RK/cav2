@@ -2,42 +2,51 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chord Atlas v2 / Phase 3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Chord Atlas v2 / Compact Search UI</title>
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <main class="app">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">CHORD ATLAS V2 / PHASE 4</p>
-        <h1>Phase 3 トーン拡充ライブラリ</h1>
-        <p class="lead">コード品質とテンションを大幅に増やした拡充版です。Slash / Level / Family / Usage / Voice で実用フォームを絞り込めます。</p>
+    <header class="topbar">
+      <div class="brand">
+        <p class="eyebrow">CHORD ATLAS V2</p>
+        <h1>コード検索</h1>
       </div>
-      <div class="stats">
-        <div><strong id="templateCount">0</strong><span>templates</span></div>
-        <div><strong id="qualityCount">0</strong><span>qualities</span></div>
+      <div class="stats compact-stats">
+        <div><strong id="templateCount">0</strong><span>forms</span></div>
+        <div><strong id="qualityCount">0</strong><span>types</span></div>
         <div><strong id="jazzCount">0</strong><span>jazz</span></div>
       </div>
     </header>
 
-    <section class="controls" aria-label="filters">
-      <label>Root<select id="rootSelect"></select></label>
-      <label>Quality<select id="qualitySelect"></select></label>
-      <label>Bass<select id="bassSelect"></select></label>
-      <label>Sort<select id="sortSelect"></select></label>
-      <label>Difficulty<select id="difficultySelect"></select></label>
-      <label>Family<select id="familySelect"></select></label>
-      <label>Usage<select id="usageSelect"></select></label>
-      <label>Level<select id="levelSelect"></select></label>
-      <label>Voice<select id="voiceSelect"></select></label>
-      <label class="check"><input type="checkbox" id="jazzOnly" /> Jazzタグのみ</label>
-      <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
+    <section class="quick-panel" aria-label="main filters">
+      <div class="quick-grid">
+        <label>Root<select id="rootSelect"></select></label>
+        <label>Quality<select id="qualitySelect"></select></label>
+        <label>Bass<select id="bassSelect"></select></label>
+        <label>Sort<select id="sortSelect"></select></label>
+      </div>
+      <details class="advanced">
+        <summary>詳細フィルタ</summary>
+        <div class="advanced-grid">
+          <label>Difficulty<select id="difficultySelect"></select></label>
+          <label>Family<select id="familySelect"></select></label>
+          <label>Usage<select id="usageSelect"></select></label>
+          <label>Level<select id="levelSelect"></select></label>
+          <label>Voice<select id="voiceSelect"></select></label>
+          <label class="check"><input type="checkbox" id="jazzOnly" /> Jazzタグのみ</label>
+          <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
+        </div>
+      </details>
     </section>
 
     <section class="result-head">
-      <h2 id="currentChord">Cmaj7</h2>
-      <p id="resultMeta">0件</p>
+      <div>
+        <h2 id="currentChord">Cmaj7</h2>
+        <p id="resultMeta">0件</p>
+      </div>
+      <button class="density-btn" id="densityBtn" type="button" aria-pressed="false">Compact</button>
     </section>
 
     <section id="cards" class="grid" aria-live="polite"></section>

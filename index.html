@@ -23,7 +23,7 @@
     <section class="quick-panel" aria-label="main filters">
       <div class="quick-grid">
         <label>Root<select id="rootSelect"></select></label>
-        <label>Quality<select id="qualitySelect"></select></label>
+        <label class="quality-control">Quality<select id="qualitySelect" class="hidden-select" tabindex="-1" aria-hidden="true"></select><button class="quality-button" id="qualityButton" type="button" aria-haspopup="dialog" aria-expanded="false"><span id="qualityButtonText">maj7</span><span aria-hidden="true">▾</span></button></label>
         <label>Bass<select id="bassSelect"></select></label>
         <label>Sort<select id="sortSelect"></select></label>
       </div>
@@ -39,6 +39,23 @@
           <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
         </div>
       </details>
+    </section>
+
+    <div class="quality-overlay" id="qualityOverlay" hidden></div>
+    <section class="quality-palette" id="qualityPalette" aria-hidden="true" role="dialog" aria-label="Quality selector">
+      <div class="palette-head">
+        <div>
+          <p class="palette-kicker">QUALITY</p>
+          <h2>コードタイプ</h2>
+        </div>
+        <button class="palette-close" id="qualityClose" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="quality-search-row">
+        <input id="qualitySearch" class="quality-search" type="search" placeholder="maj9 / m7 / alt などで検索" autocomplete="off" />
+      </div>
+      <div class="quality-favorites" id="qualityFavorites" aria-label="Favorite qualities"></div>
+      <div class="quality-tabs" id="qualityTabs" aria-label="Quality categories"></div>
+      <div class="quality-list" id="qualityList" aria-label="Quality options"></div>
     </section>
 
     <section class="result-head">

@@ -312,9 +312,24 @@ The result grid should feel like a quick visual chord browser, not a data table.
 - Fret number is shifted left to avoid overlap with finger markers.
 - Root note marker is slightly larger than other tones.
 
+## Phase 5.5 Quality Palette
 
-## Phase 5.4 diff
+Quality の通常ドロップダウンを廃止し、コードタイプパレットを追加。
 
-- Diagram board widened horizontally to prevent note dots from overlapping.
-- Fret-base number moved further left using right-aligned text.
-- SVG display size slightly increased while keeping compact card layout.
+### 変更内容
+
+- Quality はボタンからパレットで選択
+- Favorite / Major / Minor / Dominant / Sus / Dim / Aug / Other のカテゴリに整理
+- maj7, m7, 7, maj9, m9, 9, 13, 6/9 など頻出コードを Favorite に固定
+- Quality 検索欄を追加
+- 各 Quality にライブラリ登録数を表示
+- スマホでは下から開くシート型UI
+
+### 上書き対象
+
+```text
+index.html
+css/style.css
+js/main.js
+README.md
+```

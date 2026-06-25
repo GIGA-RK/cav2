@@ -333,3 +333,40 @@ css/style.css
 js/main.js
 README.md
 ```
+
+## Phase 5.6 - Quality Frequent Palette
+
+Quality selector was simplified.
+
+Changes:
+
+- Removed Favorite concept for now.
+- Added fixed frequent-quality row:
+  - maj
+  - m
+  - 7
+  - maj7
+  - m7
+  - sus4
+  - add9
+  - 6
+  - 6/9
+  - 9
+  - m9
+  - 13
+- Category row remains:
+  - Major
+  - Minor
+  - Dominant
+  - Sus
+  - Dim
+  - Aug
+  - Other
+- The intent is to keep common pop/rock/jazz chord types one tap away while still supporting the large quality library.
+
+Files changed:
+
+- index.html
+- css/style.css
+- js/main.js
+- README.md

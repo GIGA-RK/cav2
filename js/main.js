@@ -1,4 +1,4 @@
-import { NOTE_NAMES, FAMILIES, USAGES, LEVELS, VOICES, CHORD_LIBRARY } from './chord-data.js';
+import { NOTE_NAMES, FAMILIES, USAGES, LEVELS, VOICES, QUALITIES, CHORD_LIBRARY } from './chord-data.js';
 import { getAvailableQualities, findChordForms, chordName } from './chord-engine.js';
 import { renderDiagram } from './renderer.js';
 
@@ -7,11 +7,46 @@ const sortOptions = [
   ['recommended','おすすめ'], ['difficulty','簡単順'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
 ];
 
+const FAVORITE_QUALITIES = ['maj7','m7','7','maj9','m9','9','13','6/9','add9','sus4','7alt','m7b5','dim7'];
+const QUALITY_CATEGORIES = [
+  { key:'favorite', label:'★ Favorite', keys:FAVORITE_QUALITIES },
+  { key:'major', label:'Major', test:q => q.key === 'maj' || q.key === '6' || q.key === '6/9' || q.key.startsWith('maj') || q.key === 'add9' },
+  { key:'minor', label:'Minor', test:q => q.key === 'min' || q.key.startsWith('m') },
+  { key:'dominant', label:'Dominant', test:q => /^7|^9|^11|^13/.test(q.key) },
+  { key:'sus', label:'Sus', test:q => q.key.includes('sus') },
+  { key:'dim', label:'Dim', test:q => q.key.includes('dim') || q.key.includes('m7b5') || q.key.includes('m9b5') || q.key.includes('m11b5') },
+  { key:'aug', label:'Aug', test:q => q.key.includes('aug') || q.key.includes('#5') },
+  { key:'other', label:'Other', test:q => true }
+];
+
+let availableQualities = [];
+let selectedQualityCategory = 'favorite';
+
 function option(value, label=value){ return `<option value="${value}">${label}</option>`; }
+function qualityLabel(key){ return availableQualities.find(q => q.key === key)?.label ?? key; }
+
+function qualitiesForCategory(categoryKey){
+  const category = QUALITY_CATEGORIES.find(c => c.key === categoryKey) ?? QUALITY_CATEGORIES[0];
+  if(category.keys){
+    const set = new Set(category.keys);
+    return availableQualities.filter(q => set.has(q.key));
+  }
+  if(category.key === 'other'){
+    const categorized = new Set();
+    QUALITY_CATEGORIES.filter(c => c.key !== 'other' && !c.keys).forEach(c => {
+      availableQualities.filter(c.test).forEach(q => categorized.add(q.key));
+    });
+    FAVORITE_QUALITIES.forEach(k => categorized.add(k));
+    const other = availableQualities.filter(q => !categorized.has(q.key));
+    return other.length ? other : availableQualities;
+  }
+  return availableQualities.filter(category.test);
+}
 
 function init(){
+  availableQualities = getAvailableQualities();
   $('rootSelect').innerHTML = NOTE_NAMES.map(n => option(n)).join('');
-  $('qualitySelect').innerHTML = getAvailableQualities().map(q => option(q.key, q.label)).join('');
+  $('qualitySelect').innerHTML = availableQualities.map(q => option(q.key, q.label)).join('');
   $('bassSelect').innerHTML = [option('none', 'なし'), ...NOTE_NAMES.map(n => option(n))].join('');
   $('sortSelect').innerHTML = sortOptions.map(([v,l]) => option(v,l)).join('');
   $('difficultySelect').innerHTML = [1,2,3,4,5].map(n => option(n, `${n}以下`)).join('');
@@ -21,11 +56,23 @@ function init(){
   $('levelSelect').innerHTML = LEVELS.map(l => option(l, l === 'all' ? 'すべて' : `Level ${l}`)).join('');
   $('voiceSelect').innerHTML = VOICES.map(v => option(v, v === 'all' ? 'すべて' : v)).join('');
 
+  if(availableQualities.some(q => q.key === 'maj7')) $('qualitySelect').value = 'maj7';
+  updateQualityButton();
+  renderQualityPalette();
+
   $('templateCount').textContent = CHORD_LIBRARY.length;
   $('qualityCount').textContent = new Set(CHORD_LIBRARY.map(x => x.quality)).size;
   $('jazzCount').textContent = CHORD_LIBRARY.filter(x => x.jazz >= 80).length;
 
-  document.querySelectorAll('select,input').forEach(el => el.addEventListener('change', render));
+  ['rootSelect','bassSelect','sortSelect','difficultySelect','familySelect','usageSelect','levelSelect','voiceSelect','jazzOnly','allowRootless']
+    .forEach(id => $(id).addEventListener('change', render));
+  $('qualitySelect').addEventListener('change', () => { updateQualityButton(); renderQualityPalette(); render(); });
+  $('qualityButton').addEventListener('click', openQualityPalette);
+  $('qualityClose').addEventListener('click', closeQualityPalette);
+  $('qualityOverlay').addEventListener('click', closeQualityPalette);
+  $('qualitySearch').addEventListener('input', renderQualityPalette);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeQualityPalette(); });
+
   $('densityBtn').addEventListener('click', () => {
     const active = !document.body.classList.contains('compact-mode');
     document.body.classList.toggle('compact-mode', active);
@@ -34,6 +81,64 @@ function init(){
   });
   if (window.matchMedia('(max-width: 900px)').matches) document.body.classList.add('compact-mode');
   render();
+}
+
+function updateQualityButton(){
+  $('qualityButtonText').textContent = qualityLabel($('qualitySelect').value);
+}
+
+function openQualityPalette(){
+  $('qualityOverlay').hidden = false;
+  $('qualityPalette').classList.add('open');
+  $('qualityPalette').setAttribute('aria-hidden','false');
+  $('qualityButton').setAttribute('aria-expanded','true');
+  $('qualitySearch').value = '';
+  renderQualityPalette();
+  setTimeout(() => $('qualitySearch').focus({preventScroll:true}), 20);
+}
+
+function closeQualityPalette(){
+  $('qualityOverlay').hidden = true;
+  $('qualityPalette').classList.remove('open');
+  $('qualityPalette').setAttribute('aria-hidden','true');
+  $('qualityButton').setAttribute('aria-expanded','false');
+}
+
+function setQuality(key){
+  $('qualitySelect').value = key;
+  updateQualityButton();
+  renderQualityPalette();
+  render();
+  closeQualityPalette();
+}
+
+function renderQualityPalette(){
+  const current = $('qualitySelect').value;
+  const query = ($('qualitySearch')?.value || '').trim().toLowerCase();
+  const favoriteSet = new Set(FAVORITE_QUALITIES);
+  const favoriteItems = availableQualities.filter(q => favoriteSet.has(q.key));
+  $('qualityFavorites').innerHTML = favoriteItems.map(q => qualityChip(q, current, true)).join('');
+  $('qualityTabs').innerHTML = QUALITY_CATEGORIES.map(cat => `<button class="quality-tab ${selectedQualityCategory === cat.key ? 'active' : ''}" type="button" data-category="${cat.key}">${cat.label}</button>`).join('');
+
+  let list = query
+    ? availableQualities.filter(q => `${q.key} ${q.label} ${q.suffix ?? ''}`.toLowerCase().includes(query))
+    : qualitiesForCategory(selectedQualityCategory);
+  $('qualityList').innerHTML = list.length ? list.map(q => qualityChip(q, current, false)).join('') : '<p class="quality-empty">該当するコードタイプがありません。</p>';
+
+  $('qualityFavorites').querySelectorAll('[data-quality]').forEach(btn => btn.addEventListener('click', () => setQuality(btn.dataset.quality)));
+  $('qualityList').querySelectorAll('[data-quality]').forEach(btn => btn.addEventListener('click', () => setQuality(btn.dataset.quality)));
+  $('qualityTabs').querySelectorAll('[data-category]').forEach(btn => btn.addEventListener('click', () => {
+    selectedQualityCategory = btn.dataset.category;
+    $('qualitySearch').value = '';
+    renderQualityPalette();
+  }));
+}
+
+function qualityChip(q, current, compact){
+  const count = CHORD_LIBRARY.filter(item => item.quality === q.key).length;
+  return `<button class="quality-chip ${compact ? 'favorite' : ''} ${q.key === current ? 'selected' : ''}" type="button" data-quality="${q.key}">
+    <span>${q.label}</span><small>${count}</small>
+  </button>`;
 }
 
 function render(){

@@ -370,3 +370,23 @@ Files changed:
 - css/style.css
 - js/main.js
 - README.md
+
+
+## Phase 5.7 - Capo Support
+
+Added a Capo selector to the compact search UI.
+
+Behavior:
+
+- Root / Quality / Bass are treated as sounding chords.
+- Capo converts the sounding chord into the practical guitar form.
+- Example: D with Capo 2 searches and displays C-shape forms.
+- Example: D/F# with Capo 2 searches C/E-style slash forms.
+- Card titles keep the sounding chord name, while the result meta shows the converted shape.
+
+Updated files:
+
+- index.html
+- css/style.css
+- js/main.js
+- README.md

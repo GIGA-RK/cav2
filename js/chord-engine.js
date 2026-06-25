@@ -85,18 +85,53 @@ export function getAvailableQualities(){
   return QUALITIES.filter(q => CHORD_LIBRARY.some(item => item.quality === q.key));
 }
 
+function getPositionBonus(item){
+  const minF = minPositiveFret(item.frets || []);
+  const maxF = maxFret(item.frets || []);
+  // Chord-book low positions should win over high-position generated jazz shapes.
+  // This is especially important for F 1-3-3-2-1-1, Bb x-1-3-3-3-1, etc.
+  if(minF === 0) return 12;
+  if(minF <= 1 && maxF <= 4) return 18;
+  if(minF <= 3 && maxF <= 6) return 14;
+  if(minF <= 5 && maxF <= 8) return 8;
+  if(minF <= 7 && maxF <= 10) return 3;
+  if(minF >= 8) return -4;
+  return 0;
+}
+
+function getPracticalFormBonus(item){
+  const tags = item.tags || [];
+  let bonus = 0;
+  if(item.family === 'standard') bonus += 16;
+  if(item.family === 'open') bonus += 14;
+  if(item.family === 'power') bonus += 14;
+  if(tags.includes('textbook')) bonus += 14;
+  if(tags.includes('cowboy')) bonus += 10;
+  if(tags.includes('barre')) bonus += 10;
+  if(tags.includes('movable')) bonus += 4;
+  if(item.usage?.includes('beginner')) bonus += 8;
+  if(item.usage?.includes('pop')) bonus += 5;
+  if(item.usage?.includes('rock')) bonus += 5;
+  return bonus;
+}
+
 export function computeScore(item, sortMode){
   const ease = 100 - item.difficulty * 18;
   const levelBonus = item.level ? (5 - item.level) * 2 : 0;
   const slashBonus = item.slash ? 3 : 0;
-  const standardBonus = item.family === 'standard' ? 5 : item.family === 'open' ? 4 : item.family === 'power' ? 4 : 0;
-  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0) + levelBonus + slashBonus + standardBonus;
+  const practicalBonus = getPracticalFormBonus(item);
+  const positionBonus = getPositionBonus(item);
+
+  // Recommended is for everyday use, not only jazz color.
+  // Popularity / practicality / low-position chord-book forms are intentionally weighted high.
+  const base = item.popularity * .42 + ease * .22 + item.jazz * .12 + levelBonus + slashBonus + practicalBonus + positionBonus - (item.rootless ? 2 : 0);
+
   if(sortMode === 'difficulty') {
-    const familyBonus = item.family === 'open' ? 20 : item.family === 'standard' ? 18 : item.family === 'power' ? 17 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
-    const beginnerBonus = item.usage?.includes('beginner') ? 10 : 0;
-    return ease + item.popularity * .18 + familyBonus + beginnerBonus - (item.rootless ? 8 : 0);
+    const familyBonus = item.family === 'open' ? 24 : item.family === 'standard' ? 22 : item.family === 'power' ? 22 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
+    const beginnerBonus = item.usage?.includes('beginner') ? 14 : 0;
+    return ease + item.popularity * .22 + familyBonus + beginnerBonus + positionBonus + practicalBonus * .45 - (item.rootless ? 12 : 0);
   }
-  if(sortMode === 'popularity') return item.popularity + ease * .12;
+  if(sortMode === 'popularity') return item.popularity + ease * .12 + practicalBonus * .35 + positionBonus * .5;
   if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12 + slashBonus;
   if(sortMode === 'family') return base;
   if(sortMode === 'voice') return base + (item.voice === 'guide-tone' ? 5 : item.voice === 'rootless-color' ? 4 : 0);

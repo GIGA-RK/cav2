@@ -60,9 +60,10 @@ export function computeScore(item, sortMode){
   const ease = 100 - item.difficulty * 18;
   const levelBonus = item.level ? (5 - item.level) * 2 : 0;
   const slashBonus = item.slash ? 3 : 0;
-  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0) + levelBonus + slashBonus;
+  const standardBonus = item.family === 'standard' ? 5 : item.family === 'open' ? 4 : item.family === 'power' ? 4 : 0;
+  const base = item.popularity * .35 + ease * .25 + item.jazz * .25 + (item.rootless ? 4 : 0) + levelBonus + slashBonus + standardBonus;
   if(sortMode === 'difficulty') {
-    const familyBonus = item.family === 'open' ? 18 : item.family === 'power' ? 16 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
+    const familyBonus = item.family === 'open' ? 20 : item.family === 'standard' ? 18 : item.family === 'power' ? 17 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
     const beginnerBonus = item.usage?.includes('beginner') ? 10 : 0;
     return ease + item.popularity * .18 + familyBonus + beginnerBonus - (item.rootless ? 8 : 0);
   }

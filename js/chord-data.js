@@ -87,7 +87,7 @@ export const QUALITIES = [
   { key:'maj9sus4', label:'maj9sus4', suffix:'maj9sus4', intervals:[0,5,7,11,14] }
 ];
 
-export const FAMILIES = ['all','open','power','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
+export const FAMILIES = ['all','open','standard','power','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
 export const USAGES = ['all','beginner','pop','rock','jazz-comping','bossa','solo-guitar','funk','blues','chord-melody','neo-soul'];
 
 
@@ -227,6 +227,63 @@ const FIXED_BASIC_FORMS = [
   {fixedRootPc:2, quality:'5', name:'Open D5', frets:[null,null,0,2,3,null], family:'power', voice:'basic', usage:['beginner','rock','pop'], difficulty:1, popularity:94, jazz:20, level:1, tags:['open','power','rock']}
 ];
 
+
+const STANDARD_FORMS = [
+  // Standard textbook / chord-book forms. These are manually curated so they appear
+  // before generated jazz voicings when sorting by easy or recommended order.
+
+  // Major standard movable shapes, authored in C and transposed for all roots.
+  {quality:'maj', name:'Standard C A-shape', frets:[null,3,5,5,5,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:2, popularity:96, jazz:54, level:1, tags:['standard','textbook','movable','barre']},
+  {quality:'maj', name:'Standard C E-shape', frets:[8,10,10,9,8,8], family:'standard', voice:'basic', usage:['pop','rock','blues'], difficulty:3, popularity:88, jazz:50, level:2, tags:['standard','movable','barre']},
+  {quality:'maj', name:'Standard C triad top', frets:[null,null,10,9,8,null], family:'standard', voice:'basic', usage:['pop','rock','funk'], difficulty:2, popularity:74, jazz:58, level:2, tags:['standard','triad','top-set']},
+  {quality:'maj', name:'Standard C small triad', frets:[null,null,null,5,5,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:78, jazz:48, level:1, tags:['standard','triad','small']},
+  {quality:'maj', name:'Standard C compact middle', frets:[null,3,5,5,5,null], family:'standard', voice:'basic', usage:['pop','rock','funk'], difficulty:2, popularity:82, jazz:50, level:1, tags:['standard','compact','movable']},
+
+  // Minor standard movable shapes.
+  {quality:'min', name:'Standard Cm A-shape', frets:[null,3,5,5,4,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:2, popularity:94, jazz:58, level:1, tags:['standard','textbook','movable','barre']},
+  {quality:'min', name:'Standard Cm E-shape', frets:[8,10,10,8,8,8], family:'standard', voice:'basic', usage:['pop','rock','blues'], difficulty:3, popularity:86, jazz:54, level:2, tags:['standard','movable','barre']},
+  {quality:'min', name:'Standard Cm triad top', frets:[null,null,10,8,8,null], family:'standard', voice:'basic', usage:['pop','rock','funk'], difficulty:2, popularity:72, jazz:58, level:2, tags:['standard','triad','top-set']},
+  {quality:'min', name:'Standard Cm small triad', frets:[null,null,null,5,4,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:76, jazz:50, level:1, tags:['standard','triad','small']},
+
+  // Dominant 7 standard shapes.
+  {quality:'7', name:'Standard C7 A-shape', frets:[null,3,5,3,5,3], family:'standard', voice:'basic', usage:['beginner','pop','rock','blues'], difficulty:2, popularity:92, jazz:68, level:1, tags:['standard','dominant','movable']},
+  {quality:'7', name:'Standard C7 E-shape', frets:[8,10,8,9,8,8], family:'standard', voice:'basic', usage:['pop','rock','blues'], difficulty:3, popularity:84, jazz:70, level:2, tags:['standard','dominant','movable']},
+  {quality:'7', name:'Standard C7 compact top', frets:[null,null,10,9,11,null], family:'standard', voice:'basic', usage:['blues','funk','jazz-comping'], difficulty:2, popularity:74, jazz:74, level:2, tags:['standard','dominant','top-set']},
+
+  // maj7 / m7 standard chord-book forms.
+  {quality:'maj7', name:'Standard Cmaj7 A-shape', frets:[null,3,5,4,5,3], family:'standard', voice:'basic', usage:['pop','bossa','jazz-comping'], difficulty:2, popularity:86, jazz:84, level:2, tags:['standard','maj7','movable']},
+  {quality:'maj7', name:'Standard Cmaj7 E-shape', frets:[8,10,9,9,8,8], family:'standard', voice:'basic', usage:['bossa','jazz-comping','pop'], difficulty:3, popularity:78, jazz:86, level:2, tags:['standard','maj7','movable']},
+  {quality:'m7', name:'Standard Cm7 A-shape', frets:[null,3,5,3,4,3], family:'standard', voice:'basic', usage:['pop','bossa','jazz-comping'], difficulty:2, popularity:88, jazz:86, level:2, tags:['standard','m7','movable']},
+  {quality:'m7', name:'Standard Cm7 E-shape', frets:[8,10,8,8,8,8], family:'standard', voice:'basic', usage:['bossa','jazz-comping','pop'], difficulty:3, popularity:80, jazz:86, level:2, tags:['standard','m7','movable']},
+
+  // Common textbook diminished / half-dim shapes.
+  {quality:'dim', name:'Standard Cdim', frets:[null,3,4,2,4,null], family:'standard', voice:'basic', usage:['pop','jazz-comping'], difficulty:3, popularity:56, jazz:82, level:2, tags:['standard','dim']},
+  {quality:'dim7', name:'Standard Cdim7', frets:[null,3,4,2,4,2], family:'standard', voice:'basic', usage:['pop','jazz-comping'], difficulty:3, popularity:60, jazz:88, level:2, tags:['standard','dim7']},
+  {quality:'m7b5', name:'Standard Cm7b5', frets:[null,3,4,3,4,null], family:'standard', voice:'basic', usage:['jazz-comping','bossa'], difficulty:3, popularity:66, jazz:92, level:2, tags:['standard','half-dim']},
+
+  // Sus and add forms often found in pop/rock chord books.
+  {quality:'sus4', name:'Standard Csus4 A-shape', frets:[null,3,5,5,6,3], family:'standard', voice:'sus', usage:['pop','rock'], difficulty:3, popularity:80, jazz:58, level:2, tags:['standard','sus','movable']},
+  {quality:'sus2', name:'Standard Csus2 A-shape', frets:[null,3,5,5,3,3], family:'standard', voice:'sus', usage:['pop','rock'], difficulty:2, popularity:76, jazz:56, level:2, tags:['standard','sus','movable']},
+  {quality:'add9', name:'Standard Cadd9 A-shape', frets:[null,3,5,5,3,3], family:'standard', voice:'basic', usage:['pop','rock'], difficulty:2, popularity:82, jazz:62, level:2, tags:['standard','add9','movable']},
+
+  // Open-position C-family standard variants like common printed chord diagrams.
+  {fixedRootPc:0, quality:'maj', name:'Standard C open', frets:[null,3,2,0,1,0], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:100, jazz:55, level:1, tags:['standard','open','textbook','cowboy']},
+  {fixedRootPc:0, quality:'maj', name:'Standard C 3rd-fret A-shape', frets:[null,3,5,5,5,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:2, popularity:94, jazz:54, level:1, tags:['standard','textbook','movable']},
+  {fixedRootPc:0, quality:'maj', name:'Standard C open high-G', frets:[null,3,2,0,1,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:84, jazz:55, level:1, tags:['standard','open','high-g']},
+  {fixedRootPc:0, quality:'maj', name:'Standard C easy top voicing', frets:[null,null,2,0,1,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:80, jazz:54, level:1, tags:['standard','open','small']},
+  {fixedRootPc:0, quality:'maj', name:'Standard C mini top', frets:[null,null,null,0,1,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:72, jazz:48, level:1, tags:['standard','small','top-set']},
+
+  // Other open-position textbook forms beyond C.
+  {fixedRootPc:7, quality:'maj', name:'Standard G open 320003', frets:[3,2,0,0,0,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:48, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:7, quality:'maj', name:'Standard G open 320033', frets:[3,2,0,0,3,3], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:96, jazz:46, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:2, quality:'maj', name:'Standard D open', frets:[null,null,0,2,3,2], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:50, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:4, quality:'maj', name:'Standard E open', frets:[0,2,2,1,0,0], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:48, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:9, quality:'maj', name:'Standard A open', frets:[null,0,2,2,2,0], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:50, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:9, quality:'min', name:'Standard Am open', frets:[null,0,2,2,1,0], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:52, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:4, quality:'min', name:'Standard Em open', frets:[0,2,2,0,0,0], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:99, jazz:52, level:1, tags:['standard','open','cowboy']},
+  {fixedRootPc:2, quality:'min', name:'Standard Dm open', frets:[null,null,0,2,3,1], family:'standard', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:96, jazz:54, level:1, tags:['standard','open','cowboy']}
+];
+
 const MANUAL_OPEN_FORMS = [
   {quality:'maj', name:'Open C', frets:[null,3,2,0,1,0], family:'open', voice:'basic', usage:['beginner','pop','rock'], difficulty:1, popularity:96, jazz:60, level:1, tags:['open','beginner']},
   {quality:'maj7', name:'Open Cmaj7', frets:[null,3,2,0,0,0], family:'open', voice:'basic', usage:['beginner','pop','bossa'], difficulty:1, popularity:88, jazz:78, level:1, tags:['open','beginner']},
@@ -347,7 +404,7 @@ function makeEntry(quality, blueprint){
   };
 }
 function buildLibrary(){
-  const out = [...FIXED_BASIC_FORMS, ...MANUAL_OPEN_FORMS];
+  const out = [...FIXED_BASIC_FORMS, ...STANDARD_FORMS, ...MANUAL_OPEN_FORMS];
   for(const quality of QUALITIES){
     for(const blueprint of BLUEPRINTS){
       const item = makeEntry(quality, blueprint);
@@ -366,9 +423,9 @@ function buildLibrary(){
 export const CHORD_LIBRARY = buildLibrary();
 
 export const LIBRARY_META = {
-  version: 'v2-phase5.8-basic-open-power',
-  phase: 'Phase 5.8',
+  version: 'v2-phase6-standard-forms',
+  phase: 'Phase 6',
   templateCount: CHORD_LIBRARY.length,
-  focus: 'Basic open chords and power chords restored and prioritized for pop/rock beginner workflows',
+  focus: 'Standard textbook chord-book forms added and prioritized for everyday pop/rock workflows',
   nextTarget: 'Chord sheet editor, reverse lookup, and continued curation of practical forms'
 };

@@ -1,10 +1,10 @@
-import { NOTE_NAMES, FAMILIES, USAGES, LEVELS, CHORD_LIBRARY } from './chord-data.js';
+import { NOTE_NAMES, FAMILIES, USAGES, LEVELS, VOICES, CHORD_LIBRARY } from './chord-data.js';
 import { getAvailableQualities, findChordForms, chordName } from './chord-engine.js';
 import { renderDiagram } from './renderer.js';
 
 const $ = id => document.getElementById(id);
 const sortOptions = [
-  ['recommended','おすすめ'], ['difficulty','難易度が低い'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順']
+  ['recommended','おすすめ'], ['difficulty','難易度が低い'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
 ];
 
 function option(value, label=value){ return `<option value="${value}">${label}</option>`; }
@@ -19,6 +19,7 @@ function init(){
   $('familySelect').innerHTML = FAMILIES.map(f => option(f, f === 'all' ? 'すべて' : f)).join('');
   $('usageSelect').innerHTML = USAGES.map(u => option(u, u === 'all' ? 'すべて' : u)).join('');
   $('levelSelect').innerHTML = LEVELS.map(l => option(l, l === 'all' ? 'すべて' : `Level ${l}`)).join('');
+  $('voiceSelect').innerHTML = VOICES.map(v => option(v, v === 'all' ? 'すべて' : v)).join('');
 
   $('templateCount').textContent = CHORD_LIBRARY.length;
   $('qualityCount').textContent = new Set(CHORD_LIBRARY.map(x => x.quality)).size;
@@ -40,6 +41,7 @@ function render(){
     family: $('familySelect').value,
     usage: $('usageSelect').value,
     level: $('levelSelect').value,
+    voice: $('voiceSelect').value,
     jazzOnly: $('jazzOnly').checked,
     allowRootless: $('allowRootless').checked
   };
@@ -65,6 +67,7 @@ function cardHtml(item){
       ${item.slash ? `<span class="pill">Bass: ${item.bass}</span>` : ''}
       <span class="pill">Family: ${item.family}</span>
       <span class="pill">Level ${item.level ?? 2}</span>
+      <span class="pill">Voice: ${item.voice ?? 'general'}</span>
     </div>
     <div class="frets">${item.frets.map(f => f === null ? 'x' : f).join(' - ')}</div>
     <div class="tags">${tags.map(t => `#${t}`).join(' ')}</div>

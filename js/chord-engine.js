@@ -60,6 +60,7 @@ export function computeScore(item, sortMode){
   if(sortMode === 'popularity') return item.popularity + ease * .12;
   if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12 + slashBonus;
   if(sortMode === 'family') return base;
+  if(sortMode === 'voice') return base + (item.voice === 'guide-tone' ? 5 : item.voice === 'rootless-color' ? 4 : 0);
   return base;
 }
 
@@ -117,7 +118,7 @@ function makeSlashVariants(item, rootPc, bassPc){
   return out;
 }
 
-export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxDifficulty, family, usage, level, jazzOnly, allowRootless }){
+export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxDifficulty, family, usage, level, voice='all', jazzOnly, allowRootless }){
   let rows;
   if(bassPc === null){
     rows = CHORD_LIBRARY
@@ -135,6 +136,7 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
     .filter(item => family === 'all' || item.family === family)
     .filter(item => usage === 'all' || item.usage.includes(usage))
     .filter(item => level === 'all' || String(item.level ?? 2) === String(level))
+    .filter(item => voice === 'all' || item.voice === voice)
     .filter(item => !jazzOnly || item.jazz >= 80 || item.tags.includes('jazz'))
     .filter(item => allowRootless || !item.rootless)
     .filter(item => !item.frets.some(f => f !== null && f > 17));
@@ -153,6 +155,7 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
 
   rows.sort((a,b) => {
     if(sortMode === 'family' && a.family !== b.family) return a.family.localeCompare(b.family);
+    if(sortMode === 'voice' && (a.voice ?? '') !== (b.voice ?? '')) return (a.voice ?? '').localeCompare(b.voice ?? '');
     if(b.score !== a.score) return b.score - a.score;
     return a.difficulty - b.difficulty;
   });

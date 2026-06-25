@@ -3,6 +3,7 @@ import { getAvailableQualities, findChordForms, chordName } from './chord-engine
 import { renderDiagram } from './renderer.js';
 
 const $ = id => document.getElementById(id);
+const mod12 = n => ((n % 12) + 12) % 12;
 const sortOptions = [
   ['recommended','おすすめ'], ['difficulty','簡単順'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
 ];
@@ -46,6 +47,7 @@ function init(){
   $('rootSelect').innerHTML = NOTE_NAMES.map(n => option(n)).join('');
   $('qualitySelect').innerHTML = availableQualities.map(q => option(q.key, q.label)).join('');
   $('bassSelect').innerHTML = [option('none', 'なし'), ...NOTE_NAMES.map(n => option(n))].join('');
+  $('capoSelect').innerHTML = Array.from({length: 8}, (_, n) => option(String(n), n === 0 ? 'なし' : `Capo ${n}`)).join('');
   $('sortSelect').innerHTML = sortOptions.map(([v,l]) => option(v,l)).join('');
   $('difficultySelect').innerHTML = [1,2,3,4,5].map(n => option(n, `${n}以下`)).join('');
   $('difficultySelect').value = '3';
@@ -62,7 +64,7 @@ function init(){
   $('qualityCount').textContent = new Set(CHORD_LIBRARY.map(x => x.quality)).size;
   $('jazzCount').textContent = CHORD_LIBRARY.filter(x => x.jazz >= 80).length;
 
-  ['rootSelect','bassSelect','sortSelect','difficultySelect','familySelect','usageSelect','levelSelect','voiceSelect','jazzOnly','allowRootless']
+  ['rootSelect','bassSelect','capoSelect','sortSelect','difficultySelect','familySelect','usageSelect','levelSelect','voiceSelect','jazzOnly','allowRootless']
     .forEach(id => $(id).addEventListener('change', render));
   $('qualitySelect').addEventListener('change', () => { updateQualityButton(); renderQualityPalette(); render(); });
   $('qualityButton').addEventListener('click', openQualityPalette);
@@ -138,13 +140,16 @@ function qualityChip(q, current, compact){
 }
 
 function render(){
-  const rootPc = NOTE_NAMES.indexOf($('rootSelect').value);
+  const soundingRootPc = NOTE_NAMES.indexOf($('rootSelect').value);
   const qualityKey = $('qualitySelect').value;
-  const bassPc = $('bassSelect').value === 'none' ? null : NOTE_NAMES.indexOf($('bassSelect').value);
+  const soundingBassPc = $('bassSelect').value === 'none' ? null : NOTE_NAMES.indexOf($('bassSelect').value);
+  const capoFret = Number($('capoSelect').value || 0);
+  const formRootPc = mod12(soundingRootPc - capoFret);
+  const formBassPc = soundingBassPc === null ? null : mod12(soundingBassPc - capoFret);
   const params = {
-    rootPc,
+    rootPc: formRootPc,
     qualityKey,
-    bassPc,
+    bassPc: formBassPc,
     sortMode: $('sortSelect').value,
     maxDifficulty: Number($('difficultySelect').value),
     family: $('familySelect').value,
@@ -154,9 +159,18 @@ function render(){
     jazzOnly: $('jazzOnly').checked,
     allowRootless: $('allowRootless').checked
   };
-  const rows = findChordForms(params);
-  $('currentChord').textContent = chordName(rootPc, qualityKey, bassPc);
-  $('resultMeta').textContent = `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}`;
+  const rows = findChordForms(params).map(item => ({
+    ...item,
+    displayName: chordName(soundingRootPc, qualityKey, soundingBassPc),
+    formName: chordName(formRootPc, qualityKey, formBassPc),
+    diagramRootPc: formRootPc
+  }));
+  const soundingName = chordName(soundingRootPc, qualityKey, soundingBassPc);
+  const formName = chordName(formRootPc, qualityKey, formBassPc);
+  $('currentChord').textContent = capoFret ? `${soundingName} / Capo ${capoFret}` : soundingName;
+  $('resultMeta').textContent = capoFret
+    ? `${rows.length}件 / ${formName} shape / ${$('sortSelect').selectedOptions[0].textContent}`
+    : `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}`;
   $('cards').innerHTML = rows.length ? rows.map(cardHtml).join('') : `<div class="empty">条件に合うフォームがありません。Difficulty や詳細フィルタを緩めてください。</div>`;
 }
 
@@ -166,7 +180,7 @@ function cardHtml(item){
       <h3>${item.displayName}</h3>
       <div class="score" title="score">${item.score}</div>
     </div>
-    <div class="diagram">${renderDiagram(item.frets, NOTE_NAMES.indexOf(item.root))}</div>
+    <div class="diagram">${renderDiagram(item.frets, item.diagramRootPc ?? NOTE_NAMES.indexOf(item.root))}</div>
   </article>`;
 }
 

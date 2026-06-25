@@ -35,16 +35,45 @@ export function transposeFrets(frets, semitones){
   return frets.map(f => f === null ? null : f + semitones);
 }
 
+function minPositiveFret(frets){
+  const positives = frets.filter(f => f !== null && f > 0);
+  return positives.length ? Math.min(...positives) : 0;
+}
+function maxFret(frets){
+  const played = frets.filter(f => f !== null);
+  return played.length ? Math.max(...played) : 0;
+}
+function transposeTemplateCandidates(template, rootPc){
+  // Movable templates are authored as C forms. A target root can often be reached
+  // by shifting either up or down an octave. Prefer practical low positions, e.g.
+  // C E-shape 8-10-10-9-8-8 -> F E-shape 1-3-3-2-1-1, not 13-15-15-14-13-13.
+  const baseShift = mod12(rootPc);
+  return [-12, 0, 12]
+    .map(octave => baseShift + octave)
+    .map(shift => ({ shift, frets: transposeFrets(template.frets, shift) }))
+    .filter(c => !c.frets.some(f => f !== null && (f < 0 || f > 17)));
+}
+
 export function transposeTemplate(template, rootPc){
   // Fixed open forms are authored for a specific root and should not be transposed.
   if(template.fixedRootPc !== undefined){
     if(mod12(template.fixedRootPc) !== mod12(rootPc)) return null;
     return { ...template, frets:[...template.frets], root: pcToName(rootPc) };
   }
-  const semitones = mod12(rootPc); // movable templates are authored in C relative forms
-  const frets = transposeFrets(template.frets, semitones);
-  if(frets.some(f => f !== null && f > 17)) return null;
-  return { ...template, frets, root: pcToName(rootPc) };
+
+  const candidates = transposeTemplateCandidates(template, rootPc);
+  if(!candidates.length) return null;
+
+  candidates.sort((a,b) => {
+    const amin = minPositiveFret(a.frets), bmin = minPositiveFret(b.frets);
+    const amax = maxFret(a.frets), bmax = maxFret(b.frets);
+    // Strongly prefer low, chord-book positions. This fixes missing F-barre, Bm-barre, etc.
+    if(amin !== bmin) return amin - bmin;
+    if(amax !== bmax) return amax - bmax;
+    return Math.abs(a.shift) - Math.abs(b.shift);
+  });
+
+  return { ...template, frets: candidates[0].frets, root: pcToName(rootPc) };
 }
 
 export function chordName(rootPc, qualityKey, bassPc=null){

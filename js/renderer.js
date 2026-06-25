@@ -1,3 +1,9 @@
+import { NOTE_NAMES, STRING_PC } from './chord-data.js';
+
+function pcOnString(stringIndex, fret){
+  return (STRING_PC[stringIndex] + fret) % 12;
+}
+
 export function renderDiagram(frets){
   const W = 150, H = 190, left = 28, right = 125, top = 34, bottom = 168;
   const stepX = (right-left)/5, stepY = (bottom-top)/5;
@@ -16,7 +22,7 @@ export function renderDiagram(frets){
     const x = left + s*stepX;
     svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" class="string"/>`;
   }
-  if(!showNut) svg += `<text x="17" y="${top+stepY*.8}" class="base">${baseFret}</text>`;
+  if(!showNut) svg += `<text x="16" y="${top+stepY*.82}" class="base">${baseFret}</text>`;
   frets.forEach((f,s)=>{
     const x = left + s*stepX;
     if(f === null){ svg += `<text x="${x}" y="22" text-anchor="middle" class="mute">×</text>`; return; }
@@ -24,7 +30,9 @@ export function renderDiagram(frets){
     const row = showNut ? f : f - baseFret + 1;
     if(row < 1 || row > 5) return;
     const y = top + stepY*(row-.5);
-    svg += `<circle cx="${x}" cy="${y}" r="8" class="dot"/>`;
+    const note = NOTE_NAMES[pcOnString(s, f)];
+    svg += `<circle cx="${x}" cy="${y}" r="9" class="dot"/>`;
+    svg += `<text x="${x}" y="${y+3.2}" text-anchor="middle" class="dot-note">${note}</text>`;
   });
   return svg + `</svg>`;
 }

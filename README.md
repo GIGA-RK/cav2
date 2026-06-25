@@ -271,3 +271,20 @@ Design direction:
 
 Chord Atlas should feel like a quick chord finder first, with advanced filters available when needed.
 The next major UI feature is chord sheet creation: lyrics + chord placement + JSON save/load + print layout.
+
+
+## Phase 5.1 Compact Cards Update
+
+UI refinement focused on mobile density and fast chord browsing.
+
+Changes:
+
+- Chord cards now show only chord name, small score, and chord diagram.
+- Removed card-level tags, descriptions, fret text, family/usage pills, and extra metadata from result cards.
+- Enlarged base fret number on diagrams.
+- Added note-name labels inside fretted position dots.
+- Kept detailed filtering controls available in the search panel.
+
+Design intent:
+
+The result grid should feel like a quick visual chord browser, not a data table. Metadata stays in the filters and scoring engine, while cards stay compact and readable.

@@ -59,35 +59,13 @@ function render(){
   $('cards').innerHTML = rows.length ? rows.map(cardHtml).join('') : `<div class="empty">条件に合うフォームがありません。Difficulty や詳細フィルタを緩めてください。</div>`;
 }
 
-function shortUsage(item){
-  const usage = Array.isArray(item.usage) ? item.usage : [];
-  if (!usage.length) return '';
-  return usage.slice(0, 2).join(' / ');
-}
-
 function cardHtml(item){
-  const tags = [...new Set([item.family, item.voice, ...item.usage, ...(item.tags || [])])].filter(Boolean);
   return `<article class="card">
     <div class="card-head">
-      <div class="title-wrap">
-        <h3>${item.displayName}</h3>
-        <p class="subtitle">${item.name}</p>
-      </div>
+      <h3>${item.displayName}</h3>
       <div class="score" title="score">${item.score}</div>
     </div>
     <div class="diagram">${renderDiagram(item.frets)}</div>
-    <div class="pills">
-      <span class="pill">難${item.difficulty}</span>
-      <span class="pill">人${item.popularity}</span>
-      <span class="pill">Jazz ${item.jazz}</span>
-      <span class="pill ${item.rootless ? 'rootless' : 'soft'}">${item.rootless ? 'Rootless' : 'Root'}</span>
-      ${item.slash ? `<span class="pill">/${item.bass}</span>` : ''}
-      <span class="pill">${item.family}</span>
-      <span class="pill">Lv${item.level ?? 2}</span>
-      <span class="pill">${item.voice ?? 'general'}</span>
-    </div>
-    <div class="frets">${item.frets.map(f => f === null ? 'x' : f).join(' - ')}</div>
-    <div class="tags">${shortUsage(item)} ${tags.map(t => `#${t}`).join(' ')}</div>
   </article>`;
 }
 

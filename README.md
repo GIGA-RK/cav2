@@ -288,3 +288,17 @@ Changes:
 Design intent:
 
 The result grid should feel like a quick visual chord browser, not a data table. Metadata stays in the filters and scoring engine, while cards stay compact and readable.
+
+
+## Phase 5.2 compact diagram update
+
+- Card body is simplified to chord name, smaller score badge, and chord diagram only.
+- Diagram dots now show note names with larger, high-contrast letters.
+- Dot colors indicate harmonic role relative to the selected root:
+  - Root: orange
+  - 3rd: green
+  - 5th: blue
+  - 7th: purple
+  - Tensions: teal
+- Fret number text is enlarged for better visibility.
+- Card width is slightly reduced while keeping enough room for readable diagrams.

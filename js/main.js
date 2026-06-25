@@ -65,7 +65,7 @@ function cardHtml(item){
       <h3>${item.displayName}</h3>
       <div class="score" title="score">${item.score}</div>
     </div>
-    <div class="diagram">${renderDiagram(item.frets)}</div>
+    <div class="diagram">${renderDiagram(item.frets, NOTE_NAMES.indexOf(item.root))}</div>
   </article>`;
 }
 

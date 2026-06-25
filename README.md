@@ -1,42 +1,39 @@
-# Chord Atlas v2 — Phase 5.8 Basic Open & Power Chords Diff
+# Chord Atlas v2 - Phase 6 Standard Forms Diff
 
-## この差分の目的
+## What changed
 
-ジャズ寄りに拡充したことで抜けていた、ポップ・ロックで最重要の基本フォームを補強します。
+This patch restores and prioritizes standard textbook/chord-book guitar forms.
 
-## 上書きファイル
+Updated files:
 
 ```text
 js/chord-data.js
 js/chord-engine.js
-js/main.js
 README.md
 ```
 
-## 追加内容
+## Added
 
-- 基本オープンコードを固定フォームとして追加
-  - C / D / E / G / A
-  - Am / Dm / Em
-  - A7 / B7 / C7 / D7 / E7 / G7
-  - Asus2 / Asus4 / Dsus2 / Dsus4 / Esus4 / Gadd9
-- Power chord quality `5` を追加
-- Power chord family `power` を追加
-- C5系の可動フォームを追加
-- Open E5 / A5 / D5 を追加
-- 簡単順ソートで `open` と `power` が上位に来るよう補正
-- Qualityパレットの「よく使う」に `5` を追加
-- Qualityカテゴリに `Power` を追加
+- New family: `standard`
+- Standard major movable forms such as `x35553` for C
+- Standard open C variants such as `x32010`, `x32013`, `xx2013`, and top-set mini forms
+- Standard minor, dominant7, maj7, m7, diminished, sus, and add9 forms
+- Standard open textbook forms for G, D, E, A, Am, Em, Dm
+- Easy/recommended sort now gives `open`, `standard`, and `power` forms stronger priority
 
-## 実装方針
+## Design note
 
-固定オープンコードは `fixedRootPc` を持たせ、選択Rootと一致するときだけ表示します。
-これにより、Dを選んだときに本物のOpen Dが表示され、Cフォームを単純移調した不自然なフォームを避けます。
+`standard` means forms commonly found in beginner books, chord books, and everyday pop/rock guitar usage. These are manually curated and should appear before generated jazz voicings when the user sorts by easy or recommended order.
 
-Power chordは可動フォームとしてC基準で登録し、他のRootへ移調します。
+## Next target
 
-## 次の課題
+Continue adding standard forms for all common qualities:
 
-- 各Rootのオープン系候補をさらに手動キュレーション
-- `easy` / `rock` / `pop` 向けの表示プリセット追加
-- 押さえ方逆引き機能との統合
+- maj, min, 7
+- maj7, m7
+- sus2, sus4
+- add9
+- 6, m6
+- power chords
+
+The goal is practical coverage, not maximum theoretical completeness.

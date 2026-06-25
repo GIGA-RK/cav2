@@ -39,22 +39,68 @@ export const QUALITIES = [
   { key:'13#11', label:'13#11', suffix:'13#11', intervals:[0,4,7,10,18,21] },
   { key:'7alt', label:'7alt', suffix:'7alt', intervals:[0,4,10,13,15,20] },
 
+
+  { key:'add11', label:'add11', suffix:'add11', intervals:[0,4,7,17] },
+  { key:'maj9#5', label:'maj9#5', suffix:'maj9#5', intervals:[0,4,8,11,14] },
+  { key:'maj13#11', label:'maj13#11', suffix:'maj13#11', intervals:[0,4,7,11,18,21] },
+
+  { key:'m6/9', label:'m6/9', suffix:'m6/9', intervals:[0,3,7,9,14] },
+  { key:'m7b9', label:'m7♭9', suffix:'m7♭9', intervals:[0,3,7,10,13] },
+  { key:'m9add11', label:'m9add11', suffix:'m9add11', intervals:[0,3,7,10,14,17] },
+  { key:'m7#5', label:'m7#5', suffix:'m7#5', intervals:[0,3,8,10] },
+  { key:'m11b5', label:'m11♭5', suffix:'m11♭5', intervals:[0,3,6,10,14,17] },
+
+  { key:'7b9b13', label:'7♭9♭13', suffix:'7♭9♭13', intervals:[0,4,7,10,13,20] },
+  { key:'7#9b13', label:'7#9♭13', suffix:'7#9♭13', intervals:[0,4,7,10,15,20] },
+  { key:'7#9#5', label:'7#9#5', suffix:'7#9#5', intervals:[0,4,8,10,15] },
+  { key:'7b9#5', label:'7♭9#5', suffix:'7♭9#5', intervals:[0,4,8,10,13] },
+  { key:'7b9#11', label:'7♭9#11', suffix:'7♭9#11', intervals:[0,4,7,10,13,18] },
+  { key:'9b13', label:'9♭13', suffix:'9♭13', intervals:[0,4,7,10,14,20] },
+  { key:'9#5', label:'9#5', suffix:'9#5', intervals:[0,4,8,10,14] },
+  { key:'9b5', label:'9♭5', suffix:'9♭5', intervals:[0,4,6,10,14] },
+  { key:'13#9', label:'13#9', suffix:'13#9', intervals:[0,4,7,10,15,21] },
+  { key:'13b5', label:'13♭5', suffix:'13♭5', intervals:[0,4,6,10,14,21] },
+  { key:'13#5', label:'13#5', suffix:'13#5', intervals:[0,4,8,10,14,21] },
+
   { key:'sus2', label:'sus2', suffix:'sus2', intervals:[0,2,7] },
   { key:'sus4', label:'sus4', suffix:'sus4', intervals:[0,5,7] },
   { key:'7sus4', label:'7sus4', suffix:'7sus4', intervals:[0,5,7,10] },
   { key:'9sus4', label:'9sus4', suffix:'9sus4', intervals:[0,5,7,10,14] },
   { key:'13sus4', label:'13sus4', suffix:'13sus4', intervals:[0,5,7,10,14,21] },
 
+
+  { key:'7sus4b9', label:'7sus4♭9', suffix:'7sus4♭9', intervals:[0,5,7,10,13] },
+  { key:'7sus4b13', label:'7sus4♭13', suffix:'7sus4♭13', intervals:[0,5,7,10,20] },
+  { key:'9sus4b13', label:'9sus4♭13', suffix:'9sus4♭13', intervals:[0,5,7,10,14,20] },
+
   { key:'dim', label:'dim', suffix:'dim', intervals:[0,3,6] },
   { key:'dim7', label:'dim7', suffix:'dim7', intervals:[0,3,6,9] },
   { key:'aug', label:'aug', suffix:'aug', intervals:[0,4,8] },
   { key:'aug7', label:'aug7', suffix:'aug7', intervals:[0,4,8,10] },
   { key:'add9', label:'add9', suffix:'add9', intervals:[0,4,7,14] },
-  { key:'madd9', label:'madd9', suffix:'madd9', intervals:[0,3,7,14] }
+  { key:'madd9', label:'madd9', suffix:'madd9', intervals:[0,3,7,14] },
+
+  { key:'dimMaj7', label:'dimMaj7', suffix:'dimMaj7', intervals:[0,3,6,11] },
+  { key:'augadd9', label:'augadd9', suffix:'augadd9', intervals:[0,4,8,14] },
+  { key:'maj7sus4', label:'maj7sus4', suffix:'maj7sus4', intervals:[0,5,7,11] },
+  { key:'maj9sus4', label:'maj9sus4', suffix:'maj9sus4', intervals:[0,5,7,11,14] }
 ];
 
 export const FAMILIES = ['all','open','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
 export const USAGES = ['all','beginner','pop','rock','jazz-comping','bossa','solo-guitar','funk','blues','chord-melody','neo-soul'];
+
+
+export const QUALITY_ALIASES = {
+  'M':'maj7', '△':'maj7', 'Δ':'maj7', 'major7':'maj7',
+  'min':'min', '-':'min', '-7':'m7', 'minor7':'m7',
+  'ø':'m7b5', 'half-dim':'m7b5', 'half diminished':'m7b5',
+  'o':'dim', '°':'dim', 'o7':'dim7', '°7':'dim7',
+  '+':'aug', '+7':'aug7',
+  'alt':'7alt', 'dom7':'7',
+  'sus':'sus4', 'sus7':'7sus4',
+  '69':'6/9', 'm69':'m6/9'
+};
+
 export const LEVELS = ['all','1','2','3','4','5'];
 export const VOICES = ['all','basic','guide-tone','close','spread','rootless-color','upper-structure','quartal','altered','sus'];
 
@@ -107,7 +153,34 @@ const QUALITY_STYLE = {
   aug:{ pop:40, jazz:84, usage:['jazz-comping','chord-melody'] },
   aug7:{ pop:34, jazz:88, usage:['jazz-comping'] },
   add9:{ pop:76, jazz:74, usage:['pop','rock','neo-soul'] },
-  madd9:{ pop:66, jazz:76, usage:['pop','neo-soul'] }
+  madd9:{ pop:66, jazz:76, usage:['pop','neo-soul'] },
+
+  add11:{ pop:64, jazz:72, usage:['pop','rock','neo-soul'] },
+  'maj9#5':{ pop:30, jazz:91, usage:['chord-melody','jazz-comping'] },
+  'maj13#11':{ pop:40, jazz:97, usage:['jazz-comping','chord-melody'] },
+  'm6/9':{ pop:48, jazz:91, usage:['bossa','jazz-comping'] },
+  'm7b9':{ pop:36, jazz:90, usage:['jazz-comping','chord-melody'] },
+  m9add11:{ pop:52, jazz:94, usage:['jazz-comping','neo-soul','bossa'] },
+  'm7#5':{ pop:28, jazz:88, usage:['jazz-comping','chord-melody'] },
+  m11b5:{ pop:32, jazz:94, usage:['jazz-comping'] },
+  '7b9b13':{ pop:46, jazz:99, usage:['jazz-comping'] },
+  '7#9b13':{ pop:44, jazz:99, usage:['jazz-comping'] },
+  '7#9#5':{ pop:40, jazz:98, usage:['jazz-comping'] },
+  '7b9#5':{ pop:40, jazz:98, usage:['jazz-comping'] },
+  '7b9#11':{ pop:38, jazz:98, usage:['jazz-comping'] },
+  '9b13':{ pop:48, jazz:97, usage:['jazz-comping'] },
+  '9#5':{ pop:38, jazz:94, usage:['jazz-comping'] },
+  '9b5':{ pop:38, jazz:94, usage:['jazz-comping'] },
+  '13#9':{ pop:44, jazz:98, usage:['jazz-comping','funk'] },
+  '13b5':{ pop:38, jazz:96, usage:['jazz-comping'] },
+  '13#5':{ pop:38, jazz:96, usage:['jazz-comping'] },
+  '7sus4b9':{ pop:38, jazz:92, usage:['jazz-comping','funk'] },
+  '7sus4b13':{ pop:36, jazz:92, usage:['jazz-comping','funk'] },
+  '9sus4b13':{ pop:34, jazz:93, usage:['jazz-comping','funk'] },
+  dimMaj7:{ pop:24, jazz:88, usage:['chord-melody','jazz-comping'] },
+  augadd9:{ pop:28, jazz:86, usage:['chord-melody','jazz-comping'] },
+  maj7sus4:{ pop:42, jazz:84, usage:['pop','neo-soul','jazz-comping'] },
+  maj9sus4:{ pop:38, jazz:86, usage:['neo-soul','jazz-comping'] },
 };
 
 const MANUAL_OPEN_FORMS = [
@@ -249,9 +322,9 @@ function buildLibrary(){
 export const CHORD_LIBRARY = buildLibrary();
 
 export const LIBRARY_META = {
-  version: 'v2-phase3-tone-expansion',
-  phase: 'Phase 3',
+  version: 'v2-phase4-broad-coverage',
+  phase: 'Phase 4',
   templateCount: CHORD_LIBRARY.length,
-  focus: 'Expanded qualities, tension chords, altered dominant, sus, diminished/augmented, voice metadata',
-  nextTarget: 'Curate musically verified forms and add progression-aware recommendations'
+  focus: 'Broad pop/rock/jazz coverage: more add, sus, altered dominant, minor color and advanced tension qualities',
+  nextTarget: 'Manual curation, aliases/parser, and progression-aware recommendations'
 };

@@ -1,44 +1,18 @@
-# Chord Atlas v2 Phase 6.3 — Duplicate Voicing Fix
+# Chord Atlas v2 Phase 6.4 Barre Connector Diff
 
-## What changed
+## 変更内容
 
-Exact duplicate physical chord shapes are now collapsed in the search result list.
+- セーハを「押弦の丸同士をつなぐ薄いバー」で表現。
+- 音名入りの丸は残したまま、同一フレット上の押弦を背面の半透明ラインで接続。
+- フレット番号をさらに左へ移動し、押弦丸との重なりを軽減。
 
-Previously, the same frets could appear multiple times when the voicing was registered from different sources, for example:
-
-- `standard`
-- `caged`
-- generated movable form
-- slash/generated variant
-
-The UI should show the physical chord form only once.
-
-## New behavior
-
-Duplicate detection now uses only the actual fret pattern:
+## 上書きファイル
 
 ```text
-frets: 1-3-3-2-1-1
-```
-
-It intentionally ignores metadata such as:
-
-- family
-- tags
-- source name
-- template name
-
-If duplicates exist, Chord Atlas keeps the most useful one by ranking:
-
-1. higher computed score
-2. lower difficulty
-3. familiar families such as open / standard / power / caged
-
-Tags from duplicate sources are merged internally.
-
-## Files changed
-
-```text
-js/chord-engine.js
+js/renderer.js
 README.md
 ```
+
+## 方針
+
+バーだけで表現すると音名や度数情報が消えるため、通常の押弦丸を維持し、その背面に薄いセーハ補助線を描画する方式を採用。

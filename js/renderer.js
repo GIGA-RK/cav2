@@ -88,43 +88,51 @@ export function renderDiagram(frets, rootPc = null){
     });
   });
 
-  // Barre hint:
-  // 同じフレット上で、隣接する弦が2本以上続いている場合だけ薄いバーで接続する。
-  // 離れた弦同士はつながない。
-  const byFret = new Map();
+  // Auto Barre Detection
+  // 条件:
+  // 1. 各コードにつきバーは最大1本だけ描画する。
+  // 2. 最も開放弦に近い押弦フレットで、1本以上の弦をまたいで押弦している場合だけ候補にする。
+  // 3. バーの範囲内に、バーよりも開放弦に近い音がある場合は表示しない。
+  //    開放弦そのものも「バーより開放弦に近い音」として扱う。
+  const pressedFrets = frets.filter(f => f !== null && f > 0);
 
-  dots.forEach(d => {
-    if(!byFret.has(d.fret)) byFret.set(d.fret, []);
-    byFret.get(d.fret).push(d);
-  });
+  if(pressedFrets.length){
+    const targetFret = Math.min(...pressedFrets);
+    const barreStrings = [];
 
-  for(const group of byFret.values()){
-    if(group.length < 2) continue;
-
-    group.sort((a, b) => a.string - b.string);
-
-    const runs = [];
-    let run = [group[0]];
-
-    for(let i = 1; i < group.length; i++){
-      const prev = group[i - 1];
-      const curr = group[i];
-
-      if(curr.string === prev.string + 1){
-        run.push(curr);
-      }else{
-        if(run.length >= 2) runs.push(run);
-        run = [curr];
+    for(let s = 0; s < 6; s++){
+      if(frets[s] === targetFret){
+        barreStrings.push(s);
       }
     }
 
-    if(run.length >= 2) runs.push(run);
+    if(barreStrings.length >= 2){
+      const from = Math.min(...barreStrings);
+      const to = Math.max(...barreStrings);
+      let blocked = false;
 
-    for(const r of runs){
-      const first = r[0];
-      const last = r[r.length - 1];
+      for(let s = from; s <= to; s++){
+        const f = frets[s];
 
-      svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" stroke="rgba(145,185,255,.65)" stroke-width="12" stroke-linecap="round" style="stroke:rgba(145,185,255,.65);stroke-width:12;"/>`;
+        if(f === 0){
+          blocked = true;
+          break;
+        }
+
+        if(f !== null && f > 0 && f < targetFret){
+          blocked = true;
+          break;
+        }
+      }
+
+      if(!blocked){
+        const first = dots.find(d => d.string === from && d.fret === targetFret);
+        const last = dots.find(d => d.string === to && d.fret === targetFret);
+
+        if(first && last){
+          svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" stroke="rgba(145,185,255,.60)" stroke-width="11" stroke-linecap="round" style="stroke:rgba(145,185,255,.60);stroke-width:11;"/>`;
+        }
+      }
     }
   }
 

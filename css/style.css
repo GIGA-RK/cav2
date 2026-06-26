@@ -1434,3 +1434,68 @@ body.compact-mode .score {
     max-width: 150px !important;
   }
 }
+/* =========================================================
+   Header layout repair
+   PCでタイトルが縦に崩れる問題を修正
+========================================================= */
+
+.topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.brand {
+  flex: 1 1 auto !important;
+  min-width: 280px !important;
+  max-width: none !important;
+}
+
+.eyebrow {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+}
+
+.topbar h1,
+.brand h1 {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+  max-width: none !important;
+}
+
+.compact-stats {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* 狭い画面だけ縦並びに戻す */
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .brand {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .topbar h1,
+  .brand h1 {
+    white-space: nowrap !important;
+    font-size: 34px !important;
+  }
+
+  .compact-stats {
+    width: 100% !important;
+  }
+}

@@ -1,13 +1,19 @@
-# Renderer wide-board update
+# renderer.js update: fret number + taller board
 
-更新内容:
+Replace `js/renderer.js` with the included file.
 
-- `js/renderer.js` のコード図横幅を拡張。
-- 1弦側の音名入りドットが切れにくいように `viewBox` と指板幅を調整。
-- 自動セーハ補助線ロジックは維持。
+Changes:
 
-上書き対象:
+- Base fret number is less likely to be clipped on 2-digit frets.
+- Fret number position moved slightly inward and should be styled smaller / non-bold via `.base` if needed.
+- Fretboard drawing area is vertically expanded inside the same SVG/card size.
+- Existing note-name dots and automatic barre connector logic are preserved.
 
-```text
-js/renderer.js
+Recommended CSS tweak if the fret number is still bold:
+
+```css
+.base {
+  font-weight: 600;
+  font-size: 15px;
+}
 ```

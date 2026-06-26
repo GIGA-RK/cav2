@@ -20,26 +20,36 @@
       </div>
     </header>
 
-    <section class="quick-panel" aria-label="main filters">
-      <div class="quick-grid">
-        <label>Root<select id="rootSelect"></select></label>
-        <label class="quality-control">Quality<select id="qualitySelect" class="hidden-select" tabindex="-1" aria-hidden="true"></select><button class="quality-button" id="qualityButton" type="button" aria-haspopup="dialog" aria-expanded="false"><span id="qualityButtonText">maj7</span><span aria-hidden="true">▾</span></button></label>
+    <section class="quick-panel compact-filter-panel" aria-label="main filters">
+      <div class="filter-line" aria-label="primary filters">
+        <label class="filter-root">Root<select id="rootSelect"></select></label>
+
+        <label class="quality-control filter-quality">
+          Quality
+          <select id="qualitySelect" class="hidden-select" tabindex="-1" aria-hidden="true"></select>
+          <button class="quality-button" id="qualityButton" type="button" aria-haspopup="dialog" aria-expanded="false">
+            <span id="qualityButtonText">maj7</span><span aria-hidden="true">▾</span>
+          </button>
+        </label>
+
+        <label class="filter-sort">Sort<select id="sortSelect"></select></label>
+
+        <button class="advanced-toggle" id="advancedToggle" type="button" aria-expanded="false" aria-controls="advancedFilterBody">
+          ＋ 詳細
+        </button>
+      </div>
+
+      <div class="advanced-grid compact-detail-grid" id="advancedFilterBody" hidden>
         <label>Bass<select id="bassSelect"></select></label>
         <label>Capo<select id="capoSelect"></select></label>
-        <label>Sort<select id="sortSelect"></select></label>
+        <label>Difficulty<select id="difficultySelect"></select></label>
+        <label>Shape<select id="familySelect"></select></label>
+        <label>Usage<select id="usageSelect"></select></label>
+        <label>Level<select id="levelSelect"></select></label>
+        <label>Voice<select id="voiceSelect"></select></label>
+        <label class="check"><input type="checkbox" id="jazzOnly" /> Jazzタグのみ</label>
+        <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
       </div>
-      <details class="advanced">
-        <summary>詳細フィルタ</summary>
-        <div class="advanced-grid">
-          <label>Difficulty<select id="difficultySelect"></select></label>
-          <label>Shape<select id="familySelect"></select></label>
-          <label>Usage<select id="usageSelect"></select></label>
-          <label>Level<select id="levelSelect"></select></label>
-          <label>Voice<select id="voiceSelect"></select></label>
-          <label class="check"><input type="checkbox" id="jazzOnly" /> Jazzタグのみ</label>
-          <label class="check"><input type="checkbox" id="allowRootless" checked /> Rootless許可</label>
-        </div>
-      </details>
     </section>
 
     <div class="quality-overlay" id="qualityOverlay" hidden></div>

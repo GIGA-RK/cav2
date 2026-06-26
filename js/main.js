@@ -146,11 +146,47 @@ function qualitiesForCategory(categoryKey) {
   return availableQualities.filter(category.test);
 }
 
+/**
+ * コード図として安全に表示できるかを判定する。
+ *
+ * 現在の renderer は5段分のフレット図を描く。
+ * そのため、押弦フレットの幅が5フレットを超えるフォームは、
+ * 一部の音だけが表示されてしまい危険。
+ *
+ * 例:
+ *   x x 10 9 8 3
+ * のように、3フレットと10フレットが混在するものは除外する。
+ *
+ * null / undefined = ミュート
+ * 0 = 開放弦
+ * 1以上 = 押弦
+ */
+function isRenderableDiagram(frets) {
+  if (!Array.isArray(frets) || frets.length !== 6) return false;
+
+  const positive = frets.filter(f => f !== null && f !== undefined && f > 0);
+
+  // ミュート・開放弦だけの特殊ケースは許可
+  if (!positive.length) return true;
+
+  const minF = Math.min(...positive);
+  const maxF = Math.max(...positive);
+
+  // 5段表示に収まらないフォームは除外
+  if (maxF - minF > 4) return false;
+
+  return true;
+}
+
 function init() {
   availableQualities = getAvailableQualities();
 
   $('rootSelect').innerHTML = NOTE_NAMES.map(n => option(n)).join('');
-  $('qualitySelect').innerHTML = availableQualities.map(q => option(q.key, q.label)).join('');
+
+  $('qualitySelect').innerHTML = availableQualities
+    .map(q => option(q.key, q.label))
+    .join('');
+
   $('bassSelect').innerHTML = [
     option('none', 'なし'),
     ...NOTE_NAMES.map(n => option(n))
@@ -161,11 +197,14 @@ function init() {
     (_, n) => option(String(n), n === 0 ? 'なし' : `Capo ${n}`)
   ).join('');
 
-  $('sortSelect').innerHTML = sortOptions.map(([v, l]) => option(v, l)).join('');
+  $('sortSelect').innerHTML = sortOptions
+    .map(([v, l]) => option(v, l))
+    .join('');
 
   $('difficultySelect').innerHTML = [1, 2, 3, 4, 5]
     .map(n => option(n, `${n}以下`))
     .join('');
+
   $('difficultySelect').value = '3';
 
   $('familySelect').innerHTML = FAMILIES
@@ -378,12 +417,16 @@ function render() {
     allowRootless: $('allowRootless').checked
   };
 
-  const rows = findChordForms(params).map(item => ({
-    ...item,
-    displayName: chordName(soundingRootPc, qualityKey, soundingBassPc),
-    formName: chordName(formRootPc, qualityKey, formBassPc),
-    diagramRootPc: formRootPc
-  }));
+  const allRows = findChordForms(params);
+
+  const rows = allRows
+    .filter(item => isRenderableDiagram(item.frets))
+    .map(item => ({
+      ...item,
+      displayName: chordName(soundingRootPc, qualityKey, soundingBassPc),
+      formName: chordName(formRootPc, qualityKey, formBassPc),
+      diagramRootPc: formRootPc
+    }));
 
   const soundingName = chordName(soundingRootPc, qualityKey, soundingBassPc);
   const formName = chordName(formRootPc, qualityKey, formBassPc);
@@ -392,9 +435,11 @@ function render() {
     ? `${soundingName} / Capo ${capoFret}`
     : soundingName;
 
+  const hiddenCount = allRows.length - rows.length;
+
   $('resultMeta').textContent = capoFret
-    ? `${rows.length}件 / ${formName} shape / ${$('sortSelect').selectedOptions[0].textContent}`
-    : `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}`;
+    ? `${rows.length}件 / ${formName} shape / ${$('sortSelect').selectedOptions[0].textContent}${hiddenCount ? ` / ${hiddenCount}件非表示` : ''}`
+    : `${rows.length}件 / ${$('sortSelect').selectedOptions[0].textContent}${hiddenCount ? ` / ${hiddenCount}件非表示` : ''}`;
 
   $('cards').innerHTML = rows.length
     ? rows.map(cardHtml).join('')

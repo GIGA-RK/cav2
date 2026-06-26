@@ -64,7 +64,7 @@ export function renderDiagram(frets, rootPc=null){
     group.sort((a,b)=>a.string-b.string);
     const first = group[0], last = group[group.length-1];
     if(last.string - first.string < 1) continue;
-    svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" class="barre-link" stroke="rgba(145,185,255,.99)" stroke-width="9" stroke-linecap="round"/>`;
+    svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" class="barre-link" stroke="rgba(145,185,255,.99)" stroke-width="12" stroke-linecap="round"/>`;
   }
 
   dots.forEach(d=>{

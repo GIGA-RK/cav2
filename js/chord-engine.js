@@ -26,6 +26,37 @@ function voicingKey(item){
   return item.frets.map(f => f === null ? 'x' : String(f)).join('-');
 }
 
+
+export function normalizeShapeFamily(item){
+  const family = item.family ?? 'special';
+  const tags = item.tags || [];
+  if(family === 'power') return 'power';
+  if(family === 'open') return 'open';
+  if(family === 'standard') return tags.includes('barre') ? 'barre' : 'open';
+  if(family === 'caged') return tags.includes('barre') ? 'barre' : 'caged';
+  if(family === 'drop2' || family === 'drop3') return 'drop';
+  if(family === 'shell') return 'shell';
+  if(family === 'compact') return 'compact';
+  if(family === 'rootless') return 'rootless';
+  if(family === 'spread' || family === 'upper-structure') return 'special';
+  return family;
+}
+
+function usageMatches(item, selected){
+  if(selected === 'all') return true;
+  const usage = item.usage || [];
+  const tags = item.tags || [];
+  if(usage.includes(selected) || tags.includes(selected)) return true;
+  if(selected === 'jazz') return usage.includes('jazz-comping') || usage.includes('chord-melody') || tags.includes('jazz') || item.jazz >= 80;
+  if(selected === 'solo') return usage.includes('solo-guitar') || usage.includes('chord-melody');
+  if(selected === 'folk') return usage.includes('beginner') || usage.includes('pop') || tags.includes('cowboy');
+  return false;
+}
+
+function hasTag(item, tag){
+  return (item.tags || []).includes(tag);
+}
+
 function dedupeVoicingsByBestScore(rows){
   const best = new Map();
   for(const item of rows){
@@ -38,9 +69,9 @@ function dedupeVoicingsByBestScore(rows){
 
     // Prefer the row that is more useful to the user.
     // Score first, then lower difficulty, then more familiar families.
-    const familyRank = f => ({open:8, standard:7, power:7, caged:6, shell:5, drop2:4, drop3:3, compact:2, rootless:1}[f] ?? 0);
-    const itemRank = (item.score ?? 0) * 100 + (6 - (item.difficulty ?? 3)) * 8 + familyRank(item.family);
-    const prevRank = (prev.score ?? 0) * 100 + (6 - (prev.difficulty ?? 3)) * 8 + familyRank(prev.family);
+    const familyRank = f => ({open:8, barre:8, power:7, caged:6, shell:5, drop:4, compact:2, rootless:1, special:0}[f] ?? 0);
+    const itemRank = (item.score ?? 0) * 100 + (6 - (item.difficulty ?? 3)) * 8 + familyRank(normalizeShapeFamily(item));
+    const prevRank = (prev.score ?? 0) * 100 + (6 - (prev.difficulty ?? 3)) * 8 + familyRank(normalizeShapeFamily(prev));
 
     if(itemRank > prevRank){
       best.set(key, {
@@ -138,13 +169,15 @@ function getPositionBonus(item){
 
 function getPracticalFormBonus(item){
   const tags = item.tags || [];
+  const shape = normalizeShapeFamily(item);
   let bonus = 0;
-  if(item.family === 'standard') bonus += 16;
-  if(item.family === 'open') bonus += 14;
-  if(item.family === 'power') bonus += 14;
-  if(tags.includes('textbook')) bonus += 14;
-  if(tags.includes('cowboy')) bonus += 10;
-  if(tags.includes('barre')) bonus += 10;
+  if(shape === 'open') bonus += 16;
+  if(shape === 'barre') bonus += 16;
+  if(shape === 'power') bonus += 14;
+  if(shape === 'shell') bonus += 5;
+  if(tags.includes('textbook')) bonus += 18;
+  if(tags.includes('cowboy')) bonus += 12;
+  if(tags.includes('barre')) bonus += 12;
   if(tags.includes('movable')) bonus += 4;
   if(item.usage?.includes('beginner')) bonus += 8;
   if(item.usage?.includes('pop')) bonus += 5;
@@ -152,27 +185,76 @@ function getPracticalFormBonus(item){
   return bonus;
 }
 
-export function computeScore(item, sortMode){
+function textbookScore(item){
+  const shape = normalizeShapeFamily(item);
   const ease = 100 - item.difficulty * 18;
-  const levelBonus = item.level ? (5 - item.level) * 2 : 0;
-  const slashBonus = item.slash ? 3 : 0;
-  const practicalBonus = getPracticalFormBonus(item);
-  const positionBonus = getPositionBonus(item);
+  let score = 0;
+  score += ease * .28;
+  score += item.popularity * .32;
+  score += getPositionBonus(item) * 1.7;
+  score += getPracticalFormBonus(item) * 1.45;
+  if(shape === 'open') score += 22;
+  if(shape === 'barre') score += 20;
+  if(shape === 'power') score += 18;
+  if(hasTag(item, 'textbook')) score += 20;
+  if(hasTag(item, 'cowboy')) score += 14;
+  if(item.rootless) score -= 26;
+  if(item.difficulty >= 4) score -= 10;
+  return score;
+}
 
-  // Recommended is for everyday use, not only jazz color.
-  // Popularity / practicality / low-position chord-book forms are intentionally weighted high.
-  const base = item.popularity * .42 + ease * .22 + item.jazz * .12 + levelBonus + slashBonus + practicalBonus + positionBonus - (item.rootless ? 2 : 0);
+function practicalScore(item){
+  const ease = 100 - item.difficulty * 18;
+  const shape = normalizeShapeFamily(item);
+  let score = 0;
+  score += item.popularity * .46;
+  score += ease * .24;
+  score += item.jazz * .10;
+  score += getPositionBonus(item) * 1.1;
+  score += getPracticalFormBonus(item);
+  if(shape === 'open' || shape === 'barre' || shape === 'power') score += 9;
+  if(shape === 'rootless') score -= 4;
+  if(item.slash) score += 3;
+  return score;
+}
 
+function jazzScore(item){
+  const shape = normalizeShapeFamily(item);
+  let score = item.jazz + item.popularity * .10;
+  if(shape === 'shell') score += 9;
+  if(shape === 'drop') score += 8;
+  if(shape === 'rootless') score += 10;
+  if(shape === 'compact') score += 5;
+  if(item.voice === 'guide-tone') score += 8;
+  if(item.voice === 'rootless-color') score += 8;
+  if(item.slash) score += 3;
+  return score;
+}
+
+function rarityScore(item){
+  const shape = normalizeShapeFamily(item);
+  let score = 100 - item.popularity;
+  score += Math.max(0, item.jazz - 70) * .35;
+  if(shape === 'special') score += 18;
+  if(shape === 'rootless') score += 10;
+  if(item.difficulty >= 4) score += 8;
+  if(item.voice === 'altered' || item.voice === 'upper-structure' || item.voice === 'quartal') score += 15;
+  return score;
+}
+
+export function computeScore(item, sortMode){
+  if(sortMode === 'standard') return textbookScore(item);
   if(sortMode === 'difficulty') {
-    const familyBonus = item.family === 'open' ? 24 : item.family === 'standard' ? 22 : item.family === 'power' ? 22 : item.family === 'shell' ? 6 : item.family === 'caged' ? 2 : 0;
+    const shape = normalizeShapeFamily(item);
+    const ease = 100 - item.difficulty * 18;
     const beginnerBonus = item.usage?.includes('beginner') ? 14 : 0;
-    return ease + item.popularity * .22 + familyBonus + beginnerBonus + positionBonus + practicalBonus * .45 - (item.rootless ? 12 : 0);
+    const shapeBonus = shape === 'open' ? 24 : shape === 'barre' ? 18 : shape === 'power' ? 22 : shape === 'shell' ? 8 : 0;
+    return ease + item.popularity * .22 + shapeBonus + beginnerBonus + getPositionBonus(item) + getPracticalFormBonus(item) * .45 - (item.rootless ? 12 : 0);
   }
-  if(sortMode === 'popularity') return item.popularity + ease * .12 + practicalBonus * .35 + positionBonus * .5;
-  if(sortMode === 'jazz') return item.jazz + (item.rootless ? 8 : 0) + item.popularity * .12 + slashBonus;
-  if(sortMode === 'family') return base;
-  if(sortMode === 'voice') return base + (item.voice === 'guide-tone' ? 5 : item.voice === 'rootless-color' ? 4 : 0);
-  return base;
+  if(sortMode === 'jazz') return jazzScore(item);
+  if(sortMode === 'rare') return rarityScore(item);
+  // practical is the default everyday ranking.
+  return practicalScore(item);
 }
 
 function makeSlashVariants(item, rootPc, bassPc){
@@ -244,8 +326,8 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
 
   rows = rows
     .filter(item => item.difficulty <= maxDifficulty)
-    .filter(item => family === 'all' || item.family === family)
-    .filter(item => usage === 'all' || item.usage.includes(usage))
+    .filter(item => family === 'all' || normalizeShapeFamily(item) === family)
+    .filter(item => usageMatches(item, usage))
     .filter(item => level === 'all' || String(item.level ?? 2) === String(level))
     .filter(item => voice === 'all' || item.voice === voice)
     .filter(item => !jazzOnly || item.jazz >= 80 || item.tags.includes('jazz'))
@@ -255,6 +337,7 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
   rows = rows.map(item => ({
     ...item,
     displayName: chordName(rootPc, item.quality, bassPc),
+    shape: normalizeShapeFamily(item),
     score: Math.round(computeScore(item, sortMode))
   }));
 
@@ -262,8 +345,6 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
   rows = dedupeVoicingsByBestScore(rows);
 
   rows.sort((a,b) => {
-    if(sortMode === 'family' && a.family !== b.family) return a.family.localeCompare(b.family);
-    if(sortMode === 'voice' && (a.voice ?? '') !== (b.voice ?? '')) return (a.voice ?? '').localeCompare(b.voice ?? '');
     if(b.score !== a.score) return b.score - a.score;
     return a.difficulty - b.difficulty;
   });

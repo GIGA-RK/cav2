@@ -87,8 +87,8 @@ export const QUALITIES = [
   { key:'maj9sus4', label:'maj9sus4', suffix:'maj9sus4', intervals:[0,5,7,11,14] }
 ];
 
-export const FAMILIES = ['all','open','standard','power','caged','shell','drop2','drop3','rootless','compact','spread','upper-structure'];
-export const USAGES = ['all','beginner','pop','rock','jazz-comping','bossa','solo-guitar','funk','blues','chord-melody','neo-soul'];
+export const FAMILIES = ['all','open','barre','caged','shell','drop','compact','rootless','power','special'];
+export const USAGES = ['all','beginner','pop','rock','folk','jazz','bossa','funk','solo','blues'];
 
 
 export const QUALITY_ALIASES = {

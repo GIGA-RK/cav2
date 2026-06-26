@@ -5,8 +5,39 @@ import { renderDiagram } from './renderer.js';
 const $ = id => document.getElementById(id);
 const mod12 = n => ((n % 12) + 12) % 12;
 const sortOptions = [
-  ['recommended','おすすめ'], ['difficulty','簡単順'], ['popularity','使用頻度'], ['jazz','Jazz適性'], ['family','Family順'], ['voice','Voice順']
+  ['practical','実用順'],
+  ['standard','定番順'],
+  ['difficulty','簡単順'],
+  ['jazz','Jazz順'],
+  ['rare','レア順']
 ];
+
+
+const SHAPE_LABELS = {
+  all:'すべて',
+  open:'Open',
+  barre:'Barre',
+  caged:'CAGED',
+  shell:'Shell',
+  drop:'Drop',
+  compact:'Compact',
+  rootless:'Rootless',
+  power:'Power',
+  special:'Special'
+};
+
+const USAGE_LABELS = {
+  all:'すべて',
+  beginner:'Beginner',
+  pop:'Pop',
+  rock:'Rock',
+  folk:'Folk',
+  jazz:'Jazz',
+  bossa:'Bossa',
+  funk:'Funk',
+  solo:'Solo',
+  blues:'Blues'
+};
 
 const FREQUENT_QUALITIES = ['maj','min','5','7','maj7','m7','sus4','add9','6','6/9','9','m9','13'];
 const QUALITY_CATEGORIES = [
@@ -52,8 +83,8 @@ function init(){
   $('sortSelect').innerHTML = sortOptions.map(([v,l]) => option(v,l)).join('');
   $('difficultySelect').innerHTML = [1,2,3,4,5].map(n => option(n, `${n}以下`)).join('');
   $('difficultySelect').value = '3';
-  $('familySelect').innerHTML = FAMILIES.map(f => option(f, f === 'all' ? 'すべて' : f)).join('');
-  $('usageSelect').innerHTML = USAGES.map(u => option(u, u === 'all' ? 'すべて' : u)).join('');
+  $('familySelect').innerHTML = FAMILIES.map(f => option(f, SHAPE_LABELS[f] ?? f)).join('');
+  $('usageSelect').innerHTML = USAGES.map(u => option(u, USAGE_LABELS[u] ?? u)).join('');
   $('levelSelect').innerHTML = LEVELS.map(l => option(l, l === 'all' ? 'すべて' : `Level ${l}`)).join('');
   $('voiceSelect').innerHTML = VOICES.map(v => option(v, v === 'all' ? 'すべて' : v)).join('');
 

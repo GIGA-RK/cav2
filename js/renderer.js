@@ -20,13 +20,17 @@ function intervalClass(pc, rootPc){
 }
 
 export function renderDiagram(frets, rootPc = null){
-  // 横幅に少し余裕を持たせ、1弦側の音名入り●が切れないようにする。
   const W = 194;
   const H = 184;
+
+  // 横方向は前回の広め設定を維持。
   const left = 42;
   const right = 182;
-  const top = 34;
-  const bottom = 166;
+
+  // 縦方向を少し伸ばす。
+  // カードサイズは変えず、SVG内で指板だけ縦に広げる。
+  const top = 28;
+  const bottom = 172;
 
   const stepX = (right - left) / 5;
   const stepY = (bottom - top) / 5;
@@ -39,7 +43,7 @@ export function renderDiagram(frets, rootPc = null){
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
 
-  svg += `<rect x="28" y="25" width="160" height="150" rx="12" class="board"/>`;
+  svg += `<rect x="28" y="21" width="160" height="158" rx="12" class="board"/>`;
 
   for(let i = 0; i <= 5; i++){
     const y = top + i * stepY;
@@ -52,7 +56,9 @@ export function renderDiagram(frets, rootPc = null){
   }
 
   if(!showNut){
-    svg += `<text x="20" y="${top + stepY * .82}" text-anchor="end" class="base">${baseFret}</text>`;
+    // 2桁フレット番号が切れにくいよう、少し右へ戻しつつ小さめ・非ボールド想定。
+    // 太さとサイズは CSS の .base でも調整可能。
+    svg += `<text x="24" y="${top + stepY * .82}" text-anchor="end" class="base">${baseFret}</text>`;
   }
 
   const dots = [];
@@ -61,7 +67,7 @@ export function renderDiagram(frets, rootPc = null){
     const x = left + s * stepX;
 
     if(f === null){
-      svg += `<text x="${x}" y="22" text-anchor="middle" class="mute">×</text>`;
+      svg += `<text x="${x}" y="18" text-anchor="middle" class="mute">×</text>`;
       return;
     }
 
@@ -70,7 +76,7 @@ export function renderDiagram(frets, rootPc = null){
     const klass = intervalClass(pc, rootPc);
 
     if(showNut && f === 0){
-      svg += `<circle cx="${x}" cy="22" r="6" class="open open-${klass}"/>`;
+      svg += `<circle cx="${x}" cy="18" r="6" class="open open-${klass}"/>`;
       return;
     }
 
@@ -90,10 +96,10 @@ export function renderDiagram(frets, rootPc = null){
   });
 
   // Auto Barre Detection
-  // 条件
-  // ① バーは1本だけ
-  // ② 最も開放弦側(最小フレット)のみ対象
-  // ③ バー区間にもっと開放弦側の音(開放弦含む)があれば却下
+  // 条件:
+  // ① 各コードのバーは最大1本だけ
+  // ② 最も開放弦側の押弦フレットだけを対象にする
+  // ③ バー区間に、より開放弦側の音または開放弦がある場合は表示しない
   const pressed = frets.filter(f => f !== null && f > 0);
 
   if(pressed.length){
@@ -101,7 +107,9 @@ export function renderDiagram(frets, rootPc = null){
     const strings = [];
 
     for(let s = 0; s < 6; s++){
-      if(frets[s] === targetFret) strings.push(s);
+      if(frets[s] === targetFret){
+        strings.push(s);
+      }
     }
 
     if(strings.length >= 2){
@@ -112,13 +120,11 @@ export function renderDiagram(frets, rootPc = null){
       for(let s = from; s <= to; s++){
         const f = frets[s];
 
-        // 開放弦がバー区間にある場合はセーハ扱いしない。
         if(f === 0){
           blocked = true;
           break;
         }
 
-        // バー候補より開放弦側のフレットが区間内にある場合もセーハ扱いしない。
         if(f !== null && f > 0 && f < targetFret){
           blocked = true;
           break;

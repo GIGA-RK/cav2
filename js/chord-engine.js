@@ -18,8 +18,45 @@ function lowestPc(frets){
   const s = lowestString(frets);
   return s < 0 ? null : pcOnString(s, frets[s]);
 }
-function uniqueFretsKey(item){
-  return `${item.quality}|${item.family}|${item.fixedRootPc ?? ''}|${item.root ?? ''}|${item.bass ?? ''}|${item.frets.map(f => f === null ? 'x' : f).join('-')}`;
+function voicingKey(item){
+  // Physical duplicate detection.
+  // The same fret shape can arrive from several sources/families (standard, caged, generated, etc.).
+  // For display purposes it should appear only once for the current searched chord.
+  // Do NOT include family/name/tags here; those are metadata, not a different voicing.
+  return item.frets.map(f => f === null ? 'x' : String(f)).join('-');
+}
+
+function dedupeVoicingsByBestScore(rows){
+  const best = new Map();
+  for(const item of rows){
+    const key = voicingKey(item);
+    const prev = best.get(key);
+    if(!prev){
+      best.set(key, item);
+      continue;
+    }
+
+    // Prefer the row that is more useful to the user.
+    // Score first, then lower difficulty, then more familiar families.
+    const familyRank = f => ({open:8, standard:7, power:7, caged:6, shell:5, drop2:4, drop3:3, compact:2, rootless:1}[f] ?? 0);
+    const itemRank = (item.score ?? 0) * 100 + (6 - (item.difficulty ?? 3)) * 8 + familyRank(item.family);
+    const prevRank = (prev.score ?? 0) * 100 + (6 - (prev.difficulty ?? 3)) * 8 + familyRank(prev.family);
+
+    if(itemRank > prevRank){
+      best.set(key, {
+        ...item,
+        tags:[...new Set([...(prev.tags || []), ...(item.tags || [])])],
+        duplicateSources:[...(prev.duplicateSources || [prev.name]).filter(Boolean), item.name].filter(Boolean)
+      });
+    }else{
+      best.set(key, {
+        ...prev,
+        tags:[...new Set([...(prev.tags || []), ...(item.tags || [])])],
+        duplicateSources:[...(prev.duplicateSources || [prev.name]).filter(Boolean), item.name].filter(Boolean)
+      });
+    }
+  }
+  return [...best.values()];
 }
 function nearestBassFret(stringIdx, bassPc, anchor=4){
   let best = null;
@@ -215,17 +252,14 @@ export function findChordForms({ rootPc, qualityKey, bassPc=null, sortMode, maxD
     .filter(item => allowRootless || !item.rootless)
     .filter(item => !item.frets.some(f => f !== null && f > 17));
 
-  const seen = new Set();
-  rows = rows.filter(item => {
-    const key = uniqueFretsKey(item);
-    if(seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  }).map(item => ({
+  rows = rows.map(item => ({
     ...item,
     displayName: chordName(rootPc, item.quality, bassPc),
     score: Math.round(computeScore(item, sortMode))
   }));
+
+  // Collapse exact duplicate physical shapes after scoring so the best metadata wins.
+  rows = dedupeVoicingsByBestScore(rows);
 
   rows.sort((a,b) => {
     if(sortMode === 'family' && a.family !== b.family) return a.family.localeCompare(b.family);

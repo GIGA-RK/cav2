@@ -3,8 +3,9 @@
   --bg2: #0a1624;
   --panel: #101d2c;
   --panel2: #142335;
-  --line: rgba(155, 190, 230, .22);
-  --line2: rgba(155, 190, 230, .34);
+  --field: #081524;
+  --line: rgba(155, 190, 230, .24);
+  --line2: rgba(155, 190, 230, .38);
   --text: #f2f7ff;
   --muted: #9db7d6;
   --muted2: #7f9bbd;
@@ -12,10 +13,10 @@
   --accent2: #84c7ff;
   --danger: #ff6b8a;
 
-  --card-width: 198px;
-  --card-height: 190px;
+  --card-width: 184px;
+  --card-height: 176px;
 
-  --top-filter-width: 118px;
+  --top-filter-width: 112px;
   --top-filter-height: 40px;
 
   --radius-lg: 20px;
@@ -61,20 +62,30 @@ button {
   cursor: pointer;
 }
 
-.app {
+/* =========================================================
+   Layout
+========================================================= */
+
+.app,
+main,
+body > main {
   width: min(100%, 1680px);
   margin: 0 auto;
   padding: 14px;
 }
 
-/* Header */
+/* =========================================================
+   Header
+========================================================= */
 
-.hero {
+.hero,
+.header,
+.app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 20px 24px;
+  padding: 18px 22px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background:
@@ -83,7 +94,8 @@ button {
   box-shadow: 0 20px 48px rgba(0,0,0,.26);
 }
 
-.hero-kicker {
+.hero-kicker,
+.kicker {
   margin: 0 0 8px;
   color: var(--accent);
   font-size: 12px;
@@ -92,21 +104,27 @@ button {
   text-transform: uppercase;
 }
 
-.hero h1 {
+.hero h1,
+.header h1,
+.app-header h1,
+h1 {
   margin: 0;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: clamp(34px, 5vw, 56px);
   line-height: 1.02;
   letter-spacing: -.06em;
 }
 
-.hero p {
-  margin: 14px 0 0;
+.hero p,
+.header p,
+.app-header p {
+  margin: 12px 0 0;
   color: #a8c9ef;
   font-size: 15px;
   line-height: 1.55;
 }
 
-.stats {
+.stats,
+.stat-row {
   display: flex;
   gap: 10px;
   flex: 0 0 auto;
@@ -114,9 +132,10 @@ button {
 
 .stat {
   width: 88px;
-  height: 74px;
+  height: 68px;
   display: grid;
   place-items: center;
+  text-align: center;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: rgba(255,255,255,.035);
@@ -138,28 +157,39 @@ button {
   text-transform: uppercase;
 }
 
-/* Filter area */
+/* 古いHTMLで stats が span だけの場合 */
+#templateCount,
+#qualityCount,
+#jazzCount {
+  font-weight: 900;
+}
 
-.filters {
+/* =========================================================
+   Filters
+========================================================= */
+
+.filters,
+.controls,
+.filter-panel,
+.search-panel {
   margin-top: 12px;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: rgba(16, 29, 44, .84);
 }
 
-.filter-row,
+/* 上段フィルター */
 .primary-filter-row,
 .top-filter-row,
-.main-filter-row {
+.main-filter-row,
+.filter-row.primary,
+.filters-main {
   display: flex;
   align-items: end;
   gap: 8px;
   width: 100%;
   min-width: 0;
-}
-
-.primary-filter-row {
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -167,41 +197,60 @@ button {
   scrollbar-width: thin;
 }
 
-.primary-filter-row::-webkit-scrollbar {
+.primary-filter-row::-webkit-scrollbar,
+.top-filter-row::-webkit-scrollbar,
+.main-filter-row::-webkit-scrollbar,
+.filters-main::-webkit-scrollbar {
   height: 6px;
 }
 
-.primary-filter-row::-webkit-scrollbar-thumb {
+.primary-filter-row::-webkit-scrollbar-thumb,
+.top-filter-row::-webkit-scrollbar-thumb,
+.main-filter-row::-webkit-scrollbar-thumb,
+.filters-main::-webkit-scrollbar-thumb {
   background: rgba(160,190,230,.25);
   border-radius: 999px;
 }
 
+/* フィールド共通 */
 .field,
 .control,
-.filter-field {
+.filter-field,
+.filter-item {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
+/* ラベル */
 .field label,
 .control label,
-.filter-field label {
+.filter-field label,
+.filter-item label,
+.filters label,
+.controls label,
+.filter-panel label {
+  display: block;
+  margin: 0;
   color: #9cc2ee;
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .12em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
+/* セレクト・ボタン共通 */
 select,
 .input-like,
-.quality-button {
+.quality-button,
+#qualityButton {
   height: var(--top-filter-height);
   border: 1px solid var(--line2);
   border-radius: 10px;
-  background: #081524;
+  background: var(--field);
   color: var(--text);
   outline: none;
   padding: 0 12px;
@@ -212,6 +261,7 @@ select,
 
 select:focus,
 .quality-button:focus-visible,
+#qualityButton:focus-visible,
 button:focus-visible {
   border-color: rgba(132,199,255,.85);
   box-shadow:
@@ -219,7 +269,7 @@ button:focus-visible {
     inset 0 1px 0 rgba(255,255,255,.035);
 }
 
-/* 上段フィルターを同じ幅にする */
+/* 上段フィルターを小さく統一 */
 #rootSelect,
 #qualityButton,
 #sortSelect {
@@ -229,6 +279,7 @@ button:focus-visible {
   height: var(--top-filter-height) !important;
 }
 
+/* 親要素も同じ幅に寄せる */
 .field:has(#rootSelect),
 .field:has(#qualityButton),
 .field:has(#sortSelect),
@@ -237,13 +288,22 @@ button:focus-visible {
 .control:has(#sortSelect),
 .filter-field:has(#rootSelect),
 .filter-field:has(#qualityButton),
-.filter-field:has(#sortSelect) {
+.filter-field:has(#sortSelect),
+.filter-item:has(#rootSelect),
+.filter-item:has(#qualityButton),
+.filter-item:has(#sortSelect) {
   width: var(--top-filter-width) !important;
   min-width: var(--top-filter-width) !important;
   max-width: var(--top-filter-width) !important;
   flex: 0 0 var(--top-filter-width) !important;
 }
 
+/* quality selectは内部値保持用。画面にはボタンだけ出す */
+#qualitySelect {
+  display: none !important;
+}
+
+#qualityButton,
 .quality-button {
   display: flex;
   align-items: center;
@@ -252,16 +312,19 @@ button:focus-visible {
   text-align: left;
 }
 
+#qualityButton::after,
 .quality-button::after {
   content: "▾";
   color: var(--muted);
   font-size: 12px;
+  flex: 0 0 auto;
 }
 
+/* 詳細ボタン */
 #advancedToggle {
-  width: 86px !important;
-  min-width: 86px !important;
-  max-width: 86px !important;
+  width: 82px !important;
+  min-width: 82px !important;
+  max-width: 82px !important;
   height: var(--top-filter-height) !important;
   padding: 0 10px !important;
   border: 1px solid var(--line2);
@@ -273,27 +336,47 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-.advanced-filter-body {
-  margin-top: 12px;
-  padding-top: 12px;
+/* 詳細フィルター */
+#advancedFilterBody,
+.advanced-filter-body,
+.advanced-filters {
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid rgba(155,190,230,.16);
 }
 
-.advanced-grid {
+#advancedFilterBody[hidden],
+.advanced-filter-body[hidden],
+.advanced-filters[hidden] {
+  display: none !important;
+}
+
+.advanced-grid,
+.detail-grid,
+.filters-detail {
   display: grid;
   grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 10px;
   align-items: end;
 }
 
-.advanced-checks {
+.advanced-grid select,
+.detail-grid select,
+.filters-detail select {
+  width: 100%;
+}
+
+.advanced-checks,
+.checks,
+.checkbox-row {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.check-card {
+.check-card,
+.checkbox-card {
   height: 40px;
   display: inline-flex;
   align-items: center;
@@ -307,13 +390,33 @@ button:focus-visible {
   font-weight: 800;
 }
 
-.check-card input {
+.check-card input,
+.checkbox-card input {
   width: 16px;
   height: 16px;
   accent-color: var(--accent2);
 }
 
-/* Quality palette */
+/* 古いHTMLでフィルターが直下にベタ置きの場合の応急処置 */
+.filters > label,
+.controls > label {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 4px;
+}
+
+.filters > select,
+.controls > select,
+.filters > button,
+.controls > button {
+  vertical-align: bottom;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+/* =========================================================
+   Quality Palette
+========================================================= */
 
 .quality-overlay {
   position: fixed;
@@ -453,9 +556,12 @@ button:focus-visible {
   color: var(--muted);
 }
 
-/* Result header */
+/* =========================================================
+   Result Header
+========================================================= */
 
-.result-head {
+.result-head,
+.results-header {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -463,48 +569,41 @@ button:focus-visible {
   margin: 18px 2px 10px;
 }
 
-.result-head h2 {
+.result-head h2,
+.results-header h2,
+#currentChord {
   margin: 0;
   font-size: clamp(30px, 4vw, 42px);
   line-height: 1;
   letter-spacing: -.05em;
 }
 
-.result-meta {
+.result-meta,
+#resultMeta {
   color: #8fc4ff;
   font-size: 14px;
   white-space: nowrap;
 }
 
-.density-btn {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 20;
-  height: 38px;
-  padding: 0 16px;
-  border: 1px solid var(--line2);
-  border-radius: 999px;
-  background: rgba(14, 27, 42, .88);
-  backdrop-filter: blur(10px);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 900;
-}
+/* =========================================================
+   Cards
+========================================================= */
 
-/* Cards */
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
-  gap: 10px;
+#cards,
+.cards,
+.results-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr)) !important;
+  gap: 10px !important;
+  align-items: start !important;
 }
 
 .card {
   min-height: var(--card-height);
-  padding: 10px;
+  height: auto;
+  padding: 8px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 14px;
   background:
     linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)),
     var(--panel);
@@ -522,14 +621,14 @@ button:focus-visible {
 
 .card h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   letter-spacing: -.02em;
 }
 
 .score {
   color: #a5bad4;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 750;
 }
 
@@ -537,13 +636,13 @@ button:focus-visible {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 150px;
+  min-height: 140px;
 }
 
 .diagram svg {
   display: block;
   width: 100%;
-  max-width: 186px;
+  max-width: 178px;
   height: auto;
   overflow: visible;
 }
@@ -558,7 +657,30 @@ button:focus-visible {
   color: var(--muted);
 }
 
-/* SVG chord diagram */
+/* =========================================================
+   Density Button
+========================================================= */
+
+.density-btn,
+#densityBtn {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  background: rgba(14, 27, 42, .88);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   SVG Chord Diagram
+========================================================= */
 
 .board {
   fill: rgba(6, 15, 26, .62);
@@ -579,8 +701,8 @@ button:focus-visible {
 
 .base {
   fill: #f2f7ff;
-  font-size: 17px;
-  font-weight: 650;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .mute {
@@ -655,11 +777,13 @@ button:focus-visible {
   stroke-linecap: round;
 }
 
-/* Compact mode */
+/* =========================================================
+   Compact Mode
+========================================================= */
 
 body.compact-mode {
-  --card-width: 184px;
-  --card-height: 176px;
+  --card-width: 176px;
+  --card-height: 172px;
 }
 
 body.compact-mode .card {
@@ -668,7 +792,7 @@ body.compact-mode .card {
 }
 
 body.compact-mode .diagram svg {
-  max-width: 178px;
+  max-width: 174px;
 }
 
 body.compact-mode .card h3 {
@@ -679,15 +803,20 @@ body.compact-mode .score {
   font-size: 12px;
 }
 
-/* Responsive */
+/* =========================================================
+   Responsive
+========================================================= */
 
 @media (max-width: 980px) {
-  .hero {
+  .hero,
+  .header,
+  .app-header {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .stats {
+  .stats,
+  .stat-row {
     width: 100%;
   }
 
@@ -696,7 +825,9 @@ body.compact-mode .score {
     width: auto;
   }
 
-  .advanced-grid {
+  .advanced-grid,
+  .detail-grid,
+  .filters-detail {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
   }
 }
@@ -709,20 +840,29 @@ body.compact-mode .score {
     --top-filter-height: 38px;
   }
 
-  .app {
+  .app,
+  main,
+  body > main {
     padding: 8px;
   }
 
-  .hero {
+  .hero,
+  .header,
+  .app-header {
     padding: 14px;
     border-radius: 16px;
   }
 
-  .hero h1 {
+  .hero h1,
+  .header h1,
+  .app-header h1,
+  h1 {
     font-size: 34px;
   }
 
-  .hero p {
+  .hero p,
+  .header p,
+  .app-header p {
     font-size: 13px;
   }
 
@@ -739,15 +879,18 @@ body.compact-mode .score {
     font-size: 9px;
   }
 
-  .filters {
+  .filters,
+  .controls,
+  .filter-panel,
+  .search-panel {
     padding: 8px;
     border-radius: 16px;
   }
 
   #advancedToggle {
-    width: 78px !important;
-    min-width: 78px !important;
-    max-width: 78px !important;
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
     font-size: 12px !important;
   }
 
@@ -758,32 +901,41 @@ body.compact-mode .score {
     padding-inline: 10px !important;
   }
 
-  .advanced-grid {
+  .advanced-grid,
+  .detail-grid,
+  .filters-detail {
     grid-template-columns: repeat(2, minmax(110px, 1fr));
     gap: 8px;
   }
 
-  .check-card {
+  .check-card,
+  .checkbox-card {
     height: 36px;
     padding: 0 10px;
     font-size: 12px;
   }
 
-  .result-head {
+  .result-head,
+  .results-header {
     margin-top: 14px;
   }
 
-  .result-head h2 {
+  .result-head h2,
+  .results-header h2,
+  #currentChord {
     font-size: 30px;
   }
 
-  .result-meta {
+  .result-meta,
+  #resultMeta {
     font-size: 12px;
   }
 
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
+  #cards,
+  .cards,
+  .results-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
   }
 
   .card {
@@ -827,7 +979,8 @@ body.compact-mode .score {
     max-height: calc(82dvh - 64px);
   }
 
-  .density-btn {
+  .density-btn,
+  #densityBtn {
     right: 10px;
     bottom: 10px;
     height: 34px;
@@ -842,291 +995,13 @@ body.compact-mode .score {
     --top-filter-width: 98px;
   }
 
-  .cards {
-    gap: 6px;
+  #cards,
+  .cards,
+  .results-grid {
+    gap: 6px !important;
   }
 
   .diagram svg {
     max-width: 150px;
-  }
-}
-/* =========================================================
-   Phase 6.8.1 Layout Repair
-   実際のDOMに合わせた安全な上書き
-========================================================= */
-
-/* 全体幅 */
-.app,
-body > main,
-main {
-  width: min(100%, 1680px);
-  margin-inline: auto;
-}
-
-/* ヘッダーを横並びに戻す */
-.hero {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 18px !important;
-  padding: 18px 22px !important;
-  border: 1px solid rgba(155, 190, 230, .22) !important;
-  border-radius: 20px !important;
-  background: #101d2c !important;
-}
-
-.stats {
-  display: flex !important;
-  gap: 10px !important;
-  align-items: center !important;
-}
-
-.stat {
-  width: 92px !important;
-  height: 66px !important;
-  display: grid !important;
-  place-items: center !important;
-  border: 1px solid rgba(155, 190, 230, .25) !important;
-  border-radius: 14px !important;
-  background: rgba(255,255,255,.035) !important;
-}
-
-/* フィルター全体 */
-.filters {
-  margin-top: 10px !important;
-  padding: 10px 12px !important;
-  border: 1px solid rgba(155, 190, 230, .22) !important;
-  border-radius: 18px !important;
-  background: rgba(16, 29, 44, .85) !important;
-}
-
-/* 上段フィルターを1行にする */
-.primary-filter-row,
-.top-filter-row,
-.main-filter-row,
-.filter-row:first-child {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: end !important;
-  gap: 8px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  padding-bottom: 2px !important;
-}
-
-/* 各フィールド */
-.field,
-.control,
-.filter-field {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-  flex: 0 0 auto !important;
-  min-width: 0 !important;
-}
-
-.field label,
-.control label,
-.filter-field label,
-.filters label {
-  display: block !important;
-  margin: 0 0 4px !important;
-  color: #9cc2ee !important;
-  font-size: 10px !important;
-  font-weight: 900 !important;
-  letter-spacing: .10em !important;
-  text-transform: uppercase !important;
-}
-
-/* 上段の幅をROOT基準に統一 */
-#rootSelect,
-#qualityButton,
-#sortSelect {
-  width: 118px !important;
-  min-width: 118px !important;
-  max-width: 118px !important;
-  height: 40px !important;
-}
-
-/* ネイティブのquality selectが見えている場合は隠す */
-#qualitySelect {
-  display: none !important;
-}
-
-/* qualityButtonの見た目 */
-#qualityButton {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0 12px !important;
-  border: 1px solid rgba(155, 190, 230, .34) !important;
-  border-radius: 10px !important;
-  background: #081524 !important;
-  color: #f2f7ff !important;
-  font-size: 14px !important;
-  font-weight: 850 !important;
-}
-
-/* select共通 */
-select {
-  height: 40px !important;
-  border: 1px solid rgba(155, 190, 230, .34) !important;
-  border-radius: 10px !important;
-  background: #081524 !important;
-  color: #f2f7ff !important;
-  padding: 0 12px !important;
-  font-size: 14px !important;
-  font-weight: 850 !important;
-}
-
-/* 詳細ボタン */
-#advancedToggle {
-  width: 86px !important;
-  min-width: 86px !important;
-  max-width: 86px !important;
-  height: 40px !important;
-  padding: 0 10px !important;
-  border: 1px solid rgba(155, 190, 230, .34) !important;
-  border-radius: 999px !important;
-  background: linear-gradient(135deg, rgba(66,245,200,.12), rgba(132,199,255,.12)) !important;
-  color: #d9edff !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  white-space: nowrap !important;
-}
-
-/* 詳細フィルター */
-#advancedFilterBody,
-.advanced-filter-body {
-  margin-top: 10px !important;
-  padding-top: 10px !important;
-  border-top: 1px solid rgba(155,190,230,.16) !important;
-}
-
-#advancedFilterBody[hidden],
-.advanced-filter-body[hidden] {
-  display: none !important;
-}
-
-.advanced-grid {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(120px, 1fr)) !important;
-  gap: 10px !important;
-  align-items: end !important;
-}
-
-/* カード一覧。id="cards"でもclass="cards"でも効くようにする */
-#cards,
-.cards {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)) !important;
-  gap: 10px !important;
-  align-items: start !important;
-}
-
-/* カードを横長から戻す */
-.card {
-  min-height: 176px !important;
-  height: auto !important;
-  padding: 8px !important;
-  border: 1px solid rgba(155, 190, 230, .22) !important;
-  border-radius: 14px !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)), #101d2c !important;
-  overflow: hidden !important;
-}
-
-.card-head {
-  display: flex !important;
-  align-items: baseline !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  margin-bottom: 4px !important;
-}
-
-.card h3 {
-  margin: 0 !important;
-  font-size: 15px !important;
-  line-height: 1 !important;
-}
-
-.score {
-  color: #a5bad4 !important;
-  font-size: 12px !important;
-  font-weight: 750 !important;
-}
-
-/* 図をカード内に収める */
-.diagram {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  min-height: 140px !important;
-}
-
-.diagram svg {
-  display: block !important;
-  width: 100% !important;
-  max-width: 178px !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-/* モバイル */
-@media (max-width: 640px) {
-  .hero {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    padding: 14px !important;
-  }
-
-  .stats {
-    width: 100% !important;
-  }
-
-  .stat {
-    flex: 1 !important;
-    width: auto !important;
-    height: 58px !important;
-  }
-
-  #rootSelect,
-  #qualityButton,
-  #sortSelect {
-    width: 104px !important;
-    min-width: 104px !important;
-    max-width: 104px !important;
-    height: 38px !important;
-    font-size: 14px !important;
-  }
-
-  #advancedToggle {
-    width: 78px !important;
-    min-width: 78px !important;
-    max-width: 78px !important;
-    height: 38px !important;
-    font-size: 12px !important;
-  }
-
-  .advanced-grid {
-    grid-template-columns: repeat(2, minmax(110px, 1fr)) !important;
-  }
-
-  #cards,
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-  }
-
-  .card {
-    min-height: 168px !important;
-    padding: 7px !important;
-  }
-
-  .diagram {
-    min-height: 132px !important;
-  }
-
-  .diagram svg {
-    max-width: 156px !important;
   }
 }

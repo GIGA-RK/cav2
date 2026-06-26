@@ -850,3 +850,283 @@ body.compact-mode .score {
     max-width: 150px;
   }
 }
+/* =========================================================
+   Phase 6.8.1 Layout Repair
+   実際のDOMに合わせた安全な上書き
+========================================================= */
+
+/* 全体幅 */
+.app,
+body > main,
+main {
+  width: min(100%, 1680px);
+  margin-inline: auto;
+}
+
+/* ヘッダーを横並びに戻す */
+.hero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 18px 22px !important;
+  border: 1px solid rgba(155, 190, 230, .22) !important;
+  border-radius: 20px !important;
+  background: #101d2c !important;
+}
+
+.stats {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.stat {
+  width: 92px !important;
+  height: 66px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid rgba(155, 190, 230, .25) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.035) !important;
+}
+
+/* フィルター全体 */
+.filters {
+  margin-top: 10px !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(155, 190, 230, .22) !important;
+  border-radius: 18px !important;
+  background: rgba(16, 29, 44, .85) !important;
+}
+
+/* 上段フィルターを1行にする */
+.primary-filter-row,
+.top-filter-row,
+.main-filter-row,
+.filter-row:first-child {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: end !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 2px !important;
+}
+
+/* 各フィールド */
+.field,
+.control,
+.filter-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+}
+
+.field label,
+.control label,
+.filter-field label,
+.filters label {
+  display: block !important;
+  margin: 0 0 4px !important;
+  color: #9cc2ee !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: .10em !important;
+  text-transform: uppercase !important;
+}
+
+/* 上段の幅をROOT基準に統一 */
+#rootSelect,
+#qualityButton,
+#sortSelect {
+  width: 118px !important;
+  min-width: 118px !important;
+  max-width: 118px !important;
+  height: 40px !important;
+}
+
+/* ネイティブのquality selectが見えている場合は隠す */
+#qualitySelect {
+  display: none !important;
+}
+
+/* qualityButtonの見た目 */
+#qualityButton {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(155, 190, 230, .34) !important;
+  border-radius: 10px !important;
+  background: #081524 !important;
+  color: #f2f7ff !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+}
+
+/* select共通 */
+select {
+  height: 40px !important;
+  border: 1px solid rgba(155, 190, 230, .34) !important;
+  border-radius: 10px !important;
+  background: #081524 !important;
+  color: #f2f7ff !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+}
+
+/* 詳細ボタン */
+#advancedToggle {
+  width: 86px !important;
+  min-width: 86px !important;
+  max-width: 86px !important;
+  height: 40px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(155, 190, 230, .34) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(66,245,200,.12), rgba(132,199,255,.12)) !important;
+  color: #d9edff !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+/* 詳細フィルター */
+#advancedFilterBody,
+.advanced-filter-body {
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(155,190,230,.16) !important;
+}
+
+#advancedFilterBody[hidden],
+.advanced-filter-body[hidden] {
+  display: none !important;
+}
+
+.advanced-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(120px, 1fr)) !important;
+  gap: 10px !important;
+  align-items: end !important;
+}
+
+/* カード一覧。id="cards"でもclass="cards"でも効くようにする */
+#cards,
+.cards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)) !important;
+  gap: 10px !important;
+  align-items: start !important;
+}
+
+/* カードを横長から戻す */
+.card {
+  min-height: 176px !important;
+  height: auto !important;
+  padding: 8px !important;
+  border: 1px solid rgba(155, 190, 230, .22) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)), #101d2c !important;
+  overflow: hidden !important;
+}
+
+.card-head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+.card h3 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+.score {
+  color: #a5bad4 !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+/* 図をカード内に収める */
+.diagram {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 140px !important;
+}
+
+.diagram svg {
+  display: block !important;
+  width: 100% !important;
+  max-width: 178px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* モバイル */
+@media (max-width: 640px) {
+  .hero {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 14px !important;
+  }
+
+  .stats {
+    width: 100% !important;
+  }
+
+  .stat {
+    flex: 1 !important;
+    width: auto !important;
+    height: 58px !important;
+  }
+
+  #rootSelect,
+  #qualityButton,
+  #sortSelect {
+    width: 104px !important;
+    min-width: 104px !important;
+    max-width: 104px !important;
+    height: 38px !important;
+    font-size: 14px !important;
+  }
+
+  #advancedToggle {
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+  }
+
+  .advanced-grid {
+    grid-template-columns: repeat(2, minmax(110px, 1fr)) !important;
+  }
+
+  #cards,
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .card {
+    min-height: 168px !important;
+    padding: 7px !important;
+  }
+
+  .diagram {
+    min-height: 132px !important;
+  }
+
+  .diagram svg {
+    max-width: 156px !important;
+  }
+}

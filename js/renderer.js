@@ -20,10 +20,11 @@ function intervalClass(pc, rootPc){
 }
 
 export function renderDiagram(frets, rootPc = null){
-  const W = 174;
+  // 横幅に少し余裕を持たせ、1弦側の音名入り●が切れないようにする。
+  const W = 194;
   const H = 184;
-  const left = 44;
-  const right = 164;
+  const left = 42;
+  const right = 182;
   const top = 34;
   const bottom = 166;
 
@@ -38,7 +39,7 @@ export function renderDiagram(frets, rootPc = null){
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
 
-  svg += `<rect x="32" y="25" width="144" height="150" rx="12" class="board"/>`;
+  svg += `<rect x="28" y="25" width="160" height="150" rx="12" class="board"/>`;
 
   for(let i = 0; i <= 5; i++){
     const y = top + i * stepY;
@@ -89,36 +90,35 @@ export function renderDiagram(frets, rootPc = null){
   });
 
   // Auto Barre Detection
-  // 条件:
-  // 1. 各コードにつきバーは最大1本だけ描画する。
-  // 2. 最も開放弦に近い押弦フレットで、1本以上の弦をまたいで押弦している場合だけ候補にする。
-  // 3. バーの範囲内に、バーよりも開放弦に近い音がある場合は表示しない。
-  //    開放弦そのものも「バーより開放弦に近い音」として扱う。
-  const pressedFrets = frets.filter(f => f !== null && f > 0);
+  // 条件
+  // ① バーは1本だけ
+  // ② 最も開放弦側(最小フレット)のみ対象
+  // ③ バー区間にもっと開放弦側の音(開放弦含む)があれば却下
+  const pressed = frets.filter(f => f !== null && f > 0);
 
-  if(pressedFrets.length){
-    const targetFret = Math.min(...pressedFrets);
-    const barreStrings = [];
+  if(pressed.length){
+    const targetFret = Math.min(...pressed);
+    const strings = [];
 
     for(let s = 0; s < 6; s++){
-      if(frets[s] === targetFret){
-        barreStrings.push(s);
-      }
+      if(frets[s] === targetFret) strings.push(s);
     }
 
-    if(barreStrings.length >= 2){
-      const from = Math.min(...barreStrings);
-      const to = Math.max(...barreStrings);
+    if(strings.length >= 2){
+      const from = Math.min(...strings);
+      const to = Math.max(...strings);
       let blocked = false;
 
       for(let s = from; s <= to; s++){
         const f = frets[s];
 
+        // 開放弦がバー区間にある場合はセーハ扱いしない。
         if(f === 0){
           blocked = true;
           break;
         }
 
+        // バー候補より開放弦側のフレットが区間内にある場合もセーハ扱いしない。
         if(f !== null && f > 0 && f < targetFret){
           blocked = true;
           break;

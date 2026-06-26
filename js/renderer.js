@@ -1,6 +1,8 @@
 import { NOTE_NAMES, STRING_PC } from './chord-data.js';
 
-function mod12(n){ return ((n % 12) + 12) % 12; }
+function mod12(n){
+  return ((n % 12) + 12) % 12;
+}
 
 function pcOnString(stringIndex, fret){
   return mod12(STRING_PC[stringIndex] + fret);
@@ -21,44 +23,55 @@ function intervalClass(pc, rootPc){
 
 export function renderDiagram(frets, rootPc = null){
   const W = 194;
-  const H = 184;
+  const H = 194;
 
-  // 横方向は前回の広め設定を維持。
   const left = 42;
   const right = 182;
-
-  // 縦方向を少し伸ばす。
-  // カードサイズは変えず、SVG内で指板だけ縦に広げる。
-  const top = 28;
-  const bottom = 172;
+  const top = 34;
+  const bottom = 176;
 
   const stepX = (right - left) / 5;
   const stepY = (bottom - top) / 5;
 
-  const positive = frets.filter(f => f !== null && f > 0);
+  // null / undefined はミュート
+  // 0 は開放弦
+  // 1以上のみ、指板上の押弦として扱う
+  const positive = frets.filter(f => f !== null && f !== undefined && f > 0);
   const hasOpen = frets.some(f => f === 0);
+
   const minF = positive.length ? Math.min(...positive) : 0;
-  const baseFret = hasOpen ? 0 : (minF > 1 ? minF : 0);
+  const maxF = positive.length ? Math.max(...positive) : 0;
+
+  // baseFretは、開放弦ではなく「押弦している音」を基準に決める。
+  // ただし、低フレット中心のオープンコードはナット表示にする。
+  const baseFret =
+    positive.length === 0
+      ? 0
+      : (hasOpen && maxF <= 5)
+        ? 0
+        : (minF > 1 ? minF : 0);
+
   const showNut = baseFret === 0;
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
 
-  svg += `<rect x="28" y="21" width="160" height="158" rx="12" class="board"/>`;
+  svg += `<rect x="28" y="25" width="160" height="160" rx="12" class="board"/>`;
 
+  // frets
   for(let i = 0; i <= 5; i++){
     const y = top + i * stepY;
     svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" class="fret ${i === 0 && showNut ? 'nut' : ''}"/>`;
   }
 
+  // strings
   for(let s = 0; s < 6; s++){
     const x = left + s * stepX;
     svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" class="string"/>`;
   }
 
+  // ハイポジション時の基準フレット
   if(!showNut){
-    // 2桁フレット番号が切れにくいよう、少し右へ戻しつつ小さめ・非ボールド想定。
-    // 太さとサイズは CSS の .base でも調整可能。
-    svg += `<text x="24" y="${top + stepY * .82}" text-anchor="end" class="base">${baseFret}</text>`;
+    svg += `<text x="22" y="${top + stepY * .82}" text-anchor="end" class="base">${baseFret}</text>`;
   }
 
   const dots = [];
@@ -66,8 +79,9 @@ export function renderDiagram(frets, rootPc = null){
   frets.forEach((f, s) => {
     const x = left + s * stepX;
 
-    if(f === null){
-      svg += `<text x="${x}" y="18" text-anchor="middle" class="mute">×</text>`;
+    // null / undefined は必ずミュート
+    if(f === null || f === undefined){
+      svg += `<text x="${x}" y="22" text-anchor="middle" class="mute">×</text>`;
       return;
     }
 
@@ -75,12 +89,18 @@ export function renderDiagram(frets, rootPc = null){
     const note = NOTE_NAMES[pc];
     const klass = intervalClass(pc, rootPc);
 
-    if(showNut && f === 0){
-      svg += `<circle cx="${x}" cy="18" r="6" class="open open-${klass}"/>`;
+    // 0 は、showNut に関係なく必ず開放弦として上部に ○ を表示する。
+    // ハイコード中に開放弦が混ざっても、ここで省略されない。
+    if(f === 0){
+      svg += `<circle cx="${x}" cy="22" r="6" class="open open-${klass}"/>`;
       return;
     }
 
+    // 1以上は指板上に描画
     const row = showNut ? f : f - baseFret + 1;
+
+    // 図の5フレット範囲外なら描画しない
+    // ただし、これは押弦音だけの話。0/×は上部に描画済み。
     if(row < 1 || row > 5) return;
 
     const y = top + stepY * (row - .5);
@@ -95,53 +115,75 @@ export function renderDiagram(frets, rootPc = null){
     });
   });
 
+  // -------------------------
   // Auto Barre Detection
+  //
   // 条件:
-  // ① 各コードのバーは最大1本だけ
-  // ② 最も開放弦側の押弦フレットだけを対象にする
-  // ③ バー区間に、より開放弦側の音または開放弦がある場合は表示しない
-  const pressed = frets.filter(f => f !== null && f > 0);
+  // ① セーハバーは1本だけ
+  // ② 最も開放弦に近い押弦フレットだけを候補にする
+  // ③ そのフレットで、1本以上の弦をまたいで押弦している場合のみ表示
+  // ④ バー区間内に、より開放弦側の音がある場合は表示しない
+  //    0フレット、つまり開放弦も「より開放弦側の音」として扱う
+  // -------------------------
 
-  if(pressed.length){
-    const targetFret = Math.min(...pressed);
-    const strings = [];
+  let barre = null;
+
+  if(positive.length){
+    const targetFret = minF;
+
+    const stringsOnTarget = [];
 
     for(let s = 0; s < 6; s++){
       if(frets[s] === targetFret){
-        strings.push(s);
+        stringsOnTarget.push(s);
       }
     }
 
-    if(strings.length >= 2){
-      const from = Math.min(...strings);
-      const to = Math.max(...strings);
-      let blocked = false;
+    if(stringsOnTarget.length >= 2){
+      const from = Math.min(...stringsOnTarget);
+      const to = Math.max(...stringsOnTarget);
 
-      for(let s = from; s <= to; s++){
-        const f = frets[s];
+      // 1本以上の弦をまたいでいるか
+      if(to - from >= 1){
+        let blocked = false;
 
-        if(f === 0){
-          blocked = true;
-          break;
+        for(let s = from; s <= to; s++){
+          const f = frets[s];
+
+          // バー区間内に開放弦があればセーハではない
+          if(f === 0){
+            blocked = true;
+            break;
+          }
+
+          // バー区間内に、targetFretより低い押弦があればセーハではない
+          if(f !== null && f !== undefined && f > 0 && f < targetFret){
+            blocked = true;
+            break;
+          }
         }
 
-        if(f !== null && f > 0 && f < targetFret){
-          blocked = true;
-          break;
-        }
-      }
-
-      if(!blocked){
-        const first = dots.find(d => d.string === from && d.fret === targetFret);
-        const last = dots.find(d => d.string === to && d.fret === targetFret);
-
-        if(first && last){
-          svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" stroke="rgba(145,185,255,.60)" stroke-width="11" stroke-linecap="round" style="stroke:rgba(145,185,255,.60);stroke-width:11;"/>`;
+        if(!blocked){
+          barre = {
+            fret: targetFret,
+            from,
+            to
+          };
         }
       }
     }
   }
 
+  if(barre){
+    const first = dots.find(d => d.string === barre.from && d.fret === barre.fret);
+    const last = dots.find(d => d.string === barre.to && d.fret === barre.fret);
+
+    if(first && last){
+      svg += `<line x1="${first.x}" y1="${first.y}" x2="${last.x}" y2="${last.y}" class="barre-link" stroke="rgba(145,185,255,.60)" stroke-width="11" stroke-linecap="round" style="stroke:rgba(145,185,255,.60);stroke-width:11;"/>`;
+    }
+  }
+
+  // 押弦●は最後に描く。セーハ補助線より前面に出すため。
   dots.forEach(d => {
     const r = d.klass === 'root' ? 12.4 : 11.6;
 

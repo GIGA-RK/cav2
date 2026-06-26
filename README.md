@@ -1,61 +1,24 @@
-# Chord Atlas v2 — Phase 6.5 Classification Cleanup Diff
+# Chord Atlas v2 - Phase 6.7 Exact Dedupe Revert
 
-## 目的
+## Purpose
 
-コード分類の指標を整理し、UIで迷いにくい4軸へまとめます。
+Phase 6.6 の「見た目基準の重複整理」を戻し、重複判定を安全な方針に戻します。
 
-## 新しい整理
+## Policy
 
-### WHAT
-- Root
-- Quality
-- Bass
-- Capo
+- `frets` 配列が完全一致するフォームだけを重複として統合します。
+- フレット位置・構成音・ボイシングが違うフォームは、見た目が似ていても残します。
+- コード百科事典として、似たフォームよりも実際に違うフォームを保持する方針です。
 
-### HOW / Shape
-従来の `family` をユーザー向けには Shape として扱います。
+## Files
 
-- Open
-- Barre
-- CAGED
-- Shell
-- Drop
-- Compact
-- Rootless
-- Power
-- Special
+Overwrite:
 
-内部的には既存データの `standard`, `drop2`, `drop3`, `spread`, `upper-structure` などを `normalizeShapeFamily()` で統合します。
+```text
+js/chord-engine.js
+README.md
+```
 
-### WHEN / Usage
-用途は次に整理します。
+## Notes
 
-- Beginner
-- Pop
-- Rock
-- Folk
-- Jazz
-- Bossa
-- Funk
-- Solo
-- Blues
-
-既存データの `jazz-comping`, `solo-guitar`, `chord-melody` などは `usageMatches()` で吸収します。
-
-### HOW GOOD / Sort
-ソートは次の5種類へ整理します。
-
-- 実用順 `practical`
-- 定番順 `standard`
-- 簡単順 `difficulty`
-- Jazz順 `jazz`
-- レア順 `rare`
-
-## 更新ファイル
-
-- `index.html`
-- `js/main.js`
-- `js/chord-data.js`
-- `js/chord-engine.js`
-- `README.md`
-
+This reverts the visible-diagram based dedupe logic introduced in Phase 6.6.

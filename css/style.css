@@ -1,7 +1,6 @@
 :root {
   --bg: #07111d;
   --panel: #101d2c;
-  --panel2: #142335;
   --field: #081524;
 
   --line: rgba(155, 190, 230, .24);
@@ -21,8 +20,6 @@
   --top-filter-height: 40px;
 
   --radius-lg: 20px;
-  --radius-md: 14px;
-  --radius-sm: 10px;
 }
 
 * {
@@ -79,7 +76,7 @@ button {
 
 .topbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
 
@@ -99,8 +96,7 @@ button {
 
 .brand {
   flex: 1 1 auto;
-  min-width: max-content;
-  max-width: none;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -114,9 +110,6 @@ button {
   text-transform: uppercase;
 
   white-space: nowrap;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  writing-mode: horizontal-tb;
 }
 
 .topbar h1 {
@@ -127,48 +120,56 @@ button {
   letter-spacing: -.06em;
 
   white-space: nowrap;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  writing-mode: horizontal-tb;
 }
 
+/* forms / types / jazz はカードではなく小さな文字 */
 .compact-stats {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 14px;
 
   flex: 0 0 auto;
+  width: auto;
+  margin-top: 6px;
+
+  color: var(--muted);
 }
 
 .compact-stats > div {
-  width: 88px;
-  height: 68px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
 
-  display: grid;
-  place-items: center;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
 
-  text-align: center;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(255,255,255,.035);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .compact-stats strong {
-  display: block;
-  font-size: 23px;
+  display: inline;
+  color: #cfe8ff;
+  font-size: 13px;
+  font-weight: 850;
   line-height: 1;
-  font-weight: 900;
 }
 
 .compact-stats span {
-  display: block;
-  margin-top: 6px;
+  display: inline;
+  margin: 0;
 
-  color: #99b9dc;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .09em;
-  text-transform: uppercase;
+  color: #8fb2d6;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: lowercase;
 }
 
 /* =========================================================
@@ -226,7 +227,6 @@ button {
   white-space: nowrap;
 }
 
-/* 上段3つの幅を統一 */
 .filter-root,
 .filter-quality,
 .filter-sort {
@@ -268,7 +268,6 @@ button:focus-visible {
     inset 0 1px 0 rgba(255,255,255,.035);
 }
 
-/* qualitySelectは内部値保持用 */
 .hidden-select,
 #qualitySelect {
   display: none;
@@ -283,12 +282,10 @@ button:focus-visible {
   text-align: left;
 }
 
-/* HTML側に ▾ があるのでCSS側では追加しない */
 #qualityButton::after {
   content: none;
 }
 
-/* 詳細ボタン */
 #advancedToggle {
   width: 82px;
   min-width: 82px;
@@ -798,20 +795,16 @@ body.compact-mode .score {
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
   }
 
   .brand {
-    min-width: 0;
     width: 100%;
   }
 
   .compact-stats {
-    width: 100%;
-  }
-
-  .compact-stats > div {
-    flex: 1;
-    width: auto;
+    justify-content: flex-start;
+    margin-top: 0;
   }
 
   .compact-detail-grid {
@@ -840,17 +833,16 @@ body.compact-mode .score {
     font-size: 34px;
   }
 
-  .compact-stats > div {
-    height: 58px;
-    border-radius: 13px;
+  .compact-stats {
+    gap: 10px;
   }
 
   .compact-stats strong {
-    font-size: 20px;
+    font-size: 12px;
   }
 
   .compact-stats span {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .quick-panel.compact-filter-panel {
@@ -966,79 +958,5 @@ body.compact-mode .score {
 
   .diagram svg {
     max-width: 150px;
-  }
-}
-/* =========================================================
-   Compact stats: forms / types / jazz を小さい文字表示にする
-========================================================= */
-
-.compact-stats {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: auto !important;
-  margin-top: 8px !important;
-  flex-wrap: wrap !important;
-}
-
-.compact-stats > div {
-  width: auto !important;
-  height: auto !important;
-  display: inline-flex !important;
-  align-items: baseline !important;
-  gap: 3px !important;
-
-  padding: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.compact-stats strong {
-  display: inline !important;
-  font-size: 13px !important;
-  line-height: 1 !important;
-  font-weight: 800 !important;
-  color: #cfe8ff !important;
-}
-
-.compact-stats span {
-  display: inline !important;
-  margin: 0 !important;
-  font-size: 11px !important;
-  line-height: 1 !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  text-transform: lowercase !important;
-  color: #8fb2d6 !important;
-}
-
-/* PCでもモバイルでもカード状に戻さない */
-@media (max-width: 980px) {
-  .compact-stats {
-    width: auto !important;
-  }
-
-  .compact-stats > div {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    height: auto !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .compact-stats {
-    margin-top: 6px !important;
-    gap: 10px !important;
-  }
-
-  .compact-stats strong {
-    font-size: 12px !important;
-  }
-
-  .compact-stats span {
-    font-size: 10px !important;
   }
 }

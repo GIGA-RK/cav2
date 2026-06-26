@@ -1,20 +1,44 @@
-# Chord Atlas v2 - Phase 6.2 Ranking Fix
+# Chord Atlas v2 Phase 6.3 — Duplicate Voicing Fix
 
-## Purpose
+## What changed
 
-Phase 6.1で低ポジション移調は直ったが、F Major の定番1フレットバレー `1-3-3-2-1-1` の順位が低すぎたため、スコアリングを調整した。
+Exact duplicate physical chord shapes are now collapsed in the search result list.
 
-## Changes
+Previously, the same frets could appear multiple times when the voicing was registered from different sources, for example:
 
-- `standard` / `open` / `power` をおすすめ順で強く優先
-- `textbook` / `cowboy` / `barre` / `beginner` タグを加点
-- 低ポジションフォームを加点
-  - 1〜4フレット内のフォームを特に優先
-  - 8フレット以上の高ポジション生成フォームはやや減点
-- おすすめ順では Jazz スコアの比重を下げ、日常的な実用度を優先
-- 簡単順でも open / standard / power / beginner をさらに優先
+- `standard`
+- `caged`
+- generated movable form
+- slash/generated variant
 
-## Expected Result
+The UI should show the physical chord form only once.
 
-F Majorで検索した場合、定番の `1-3-3-2-1-1` が上位に表示される。
+## New behavior
 
+Duplicate detection now uses only the actual fret pattern:
+
+```text
+frets: 1-3-3-2-1-1
+```
+
+It intentionally ignores metadata such as:
+
+- family
+- tags
+- source name
+- template name
+
+If duplicates exist, Chord Atlas keeps the most useful one by ranking:
+
+1. higher computed score
+2. lower difficulty
+3. familiar families such as open / standard / power / caged
+
+Tags from duplicate sources are merged internally.
+
+## Files changed
+
+```text
+js/chord-engine.js
+README.md
+```
